@@ -21,8 +21,6 @@ Output: <br />
 Proof completed.
 <br />
 Abella < Goodbye.
-
-<li> The command returns to the prompt. 
 <br />(* Important: It may take 2-3 minutes *)  
 </ul>
 To clean: <br />
