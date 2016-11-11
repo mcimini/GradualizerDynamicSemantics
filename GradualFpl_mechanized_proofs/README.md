@@ -9,16 +9,18 @@ Quick usage: <br />
 </ul>
  <br />
 Output: <br />
-After machine-checking all theorems, you get 
+<ul>
+<li> Abella machine-checks all theorems and ends with:
 
 simulation_of_more_precise < search.
 Proof completed.
 
 Abella < Goodbye.
 
-and returns to the prompt. 
+<li> The command returns to the prompt. 
 <br />(* Important: It may take 2-3 minutes *)  
-
+</ul>
+<br />
 To clean: <br />
 <ul>
 <li> make clean 
