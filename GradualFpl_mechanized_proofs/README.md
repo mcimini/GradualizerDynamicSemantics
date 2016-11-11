@@ -4,7 +4,7 @@ Author: Matteo Cimini (mcimini@indiana.edu)
 
 Language: <br />
 <ul>
-<li> fpl.mod: A call-by-value functional programming language with integers, booleans, if-then-else}, pairs, sums, lists, fix, letrec, polymorphim, recursive types, 
+<li> fpl.mod: A call-by-value functional programming language with integers, booleans, if-then-else, pairs, sums, lists, fix, letrec, polymorphim, recursive types, 
 and exceptions.
 <li> gradualized in gradual_fpl.mod
 </ul>
