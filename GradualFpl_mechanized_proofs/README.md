@@ -5,7 +5,7 @@ Author: Matteo Cimini (mcimini@indiana.edu)
 Quick usage: <br />
 <ul>
 <li> make 
-     (* Important: you need the <a href="http://abella-prover.org">Abella proofs assistant</a> installed and "abella" must be in the $PATH *)  
+ <br />    (* Important: you need the <a href="http://abella-prover.org">Abella proofs assistant</a> installed and "abella" must be in the $PATH *)  
 </ul>
  <br />
 Output: <br />
@@ -17,7 +17,7 @@ Proof completed.
 Abella < Goodbye.
 
 and returns to the prompt. 
-(* Important: It may take 2-3 minutes *)  
+<br />(* Important: It may take 2-3 minutes *)  
 
 To clean: <br />
 <ul>
