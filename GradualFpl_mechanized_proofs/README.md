@@ -2,7 +2,14 @@
 
 Author: Matteo Cimini (mcimini@indiana.edu)
 
-Quick usage: <br />
+Language: <br />
+<ul>
+<li> fpl.mod: A call-by-value functional programming language with integers, booleans, if-then-else}, pairs, sums, lists, fix, letrec, polymorphim, recursive types, 
+and exceptions.
+<li> gradualized in gradual_fpl.mod
+</ul>
+
+Quick check for the mechanized proof: <br />
 <ul>
 <li> make 
  <br />    (* Important: you need the <a href="http://abella-prover.org">Abella proofs assistant</a> installed and "abella" must be in the $PATH *)  
