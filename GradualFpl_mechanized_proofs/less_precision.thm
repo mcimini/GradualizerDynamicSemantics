@@ -1,0 +1,19 @@
+Specification "gradual_fpl".
+
+Theorem lessPreciseType_reflexivity : forall T, {lessPreciseType T T}. skip.
+
+Theorem less_precise_means_less_precise_type : forall E1 E2 T1 T2, {typeOfCC E1 T1} -> {typeOfCC E2 T2} -> {lessPrecise E1 E2} -> {lessPreciseType T1 T2}. skip. 
+	
+
+Theorem lessPreciseType_transfer_to_ground : forall T1 T2 G, {lessPreciseType T1 T2} -> {getGroundOf T1 G} -> {lessPreciseType G T2}. 
+intros Less Get. case Less. 
+% int, bool, dyn
+case Get. case Get. case Get. 
+% the rest
+case Get. search. 
+case Get. search. 
+case Get. search. 
+case Get. search. 
+case Get. search. 
+case Get. search. 
+

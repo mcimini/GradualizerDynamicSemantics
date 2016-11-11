@@ -1,0 +1,172 @@
+Specification "gradual_fpl".
+
+Define name : term -> prop by
+  nabla x, name x.
+
+Theorem member_nominal_absurd : forall L T, nabla x,
+  member (typeOfCC x T) L -> false. 
+induction on 1. intros. case H1. apply IH to H2.
+
+Close label, term, typ.
+
+Define ctx : olist -> prop by
+  ctx nil ;
+  nabla x, ctx (typeOfCC x T :: L) := ctx L.    
+
+Theorem ctx_uniq : forall L E T1 T2,
+ ctx L -> member (typeOfCC E T1) L -> member (typeOfCC E T2) L -> T1 = T2. 
+induction on 2. intros. case H2.
+ case H3.
+   search.
+   case H1. apply member_nominal_absurd to H4.
+ case H3.
+   case H1. apply member_nominal_absurd to H4.
+   case H1. apply IH to H6 H4 H5. search.
+
+Theorem ctx_mem :
+   forall L E,
+   ctx L -> member E L ->
+   exists N X, E = typeOfCC X N /\ name X.
+induction on 2. intros. case H2.
+  case H1. search.
+  case H1.
+    apply IH to H4 H3. search.
+
+
+Theorem type_uniq_ext : forall L E T1 T2,
+ ctx L -> {L |- typeOfCC E T1} -> {L |- typeOfCC E T2} -> T1 = T2. 
+induction on 2. intros Ctx TypeFirst TypeSecond. TypeFirst : case TypeFirst.
+% fold.
+ Formula : case TypeSecond. 
+  search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% absT
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% cons
+ Formula : case TypeSecond. 
+  search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% emptyList
+ Formula : case TypeSecond. 
+  search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% inr
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% inl
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% pair
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. apply IH to _ TypeFirst1 Formula1. search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% ff.
+ Formula : case TypeSecond. 
+  search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% tt.
+ Formula : case TypeSecond. 
+  search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% succ
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% zero.
+ Formula : case TypeSecond. 
+  search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% abs
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% unfold
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% appT
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% isnil
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% tail
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% head
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% case
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. apply IH to _ TypeFirst1 Formula1. apply IH to _ TypeFirst2 Formula2. search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% snd
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% fst
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% if
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. apply IH to _ TypeFirst1 Formula1. apply IH to _ TypeFirst2 Formula2. search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% isZero
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% pred
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% app
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. apply IH to _ TypeFirst1 Formula1. search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% let
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. apply IH to _ TypeFirst1 Formula1. search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% letrec
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. apply IH to _ TypeFirst1 Formula1. search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% fix
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% try
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. apply IH to _ TypeFirst1 Formula1. search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% raise 
+ Formula : case TypeSecond. 
+  apply IH to _ TypeFirst Formula. search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% cast 
+ Formula : case TypeSecond. 
+  search. 
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+% blame 
+ Formula : case TypeSecond. 
+  search.
+  Name : apply ctx_mem to Ctx Formula1. case Name. case Formula. 
+%last inductive case on the list of forumlae.
+ apply ctx_mem to Ctx TypeFirst1. case TypeFirst. case H1.
+   case TypeSecond. apply ctx_mem to Ctx H3. case H2.
+   apply ctx_uniq to Ctx TypeFirst1 H3. search.
+   
+   
+Theorem type_uniqueness : forall E T1 T2,
+ {typeOfCC E T1} -> {typeOfCC E T2} -> T1 = T2. 
+ intros. apply type_uniq_ext to _ H1 H2. search.
+ 

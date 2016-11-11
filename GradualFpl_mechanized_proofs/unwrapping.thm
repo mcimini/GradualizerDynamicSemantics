@@ -1,0 +1,608 @@
+Specification "gradual_fpl".
+
+Import "auxiliary".
+Import "type_uniqueness".
+Import "catchup_theorems".
+
+Theorem unwrapping_app : forall V V' T1' T2' T4 T2 T3 T1 E3 E2'1 L, 
+{value V} -> 
+{typeOfCC (cast V (arrow T1' T2') L (arrow T4 T2)) (arrow T4 T2)} -> 
+{value (cast V (arrow T1' T2') L (arrow T4 T2))} -> 
+{typeOfCC V' (arrow T3 T1)} -> 
+{value V'} -> 
+{lessPrecise V' (cast V (arrow T1' T2') L (arrow T4 T2))} -> 
+{typeOfCC E3 T3} -> 
+{typeOfCC E2'1 T4} -> 
+{value E2'1} -> 
+{lessPrecise E3 E2'1} ->
+exists E1', {nstep (app V' E3) E1'} /\
+   {lessPrecise E1' (cast (app V (cast E2'1 T4 L T1')) T2' L T2)}.
+induction on 6.
+intros ValueNake Type1 Value1 Type2 Value2 Less TypeArg TypeArgPrime ValueArgPrime LessArg.
+Less : case Less(keep).
+
+case Less2(keep). Contra : case Value2. case Contra1.
+case Less3(keep). case Type2.
+case Value2(keep).
+NewStepFirstElement : apply catch_up_to_value_on_left to TypeArgPrime ValueArgPrime TypeArg LessArg.  
+WrappedE1Value : assert {value (cast E1 (arrow T1'1 T2'1) L1 (arrow T1'2 T2'2))}.
+ArgumenCatches : apply nstep_app2 to NewStepFirstElement WrappedE1Value. 
+CastStep : assert {nstep (app (cast E1 (arrow T1'1 T2'1) L1 (arrow T1'2 T2'2)) V'1) (cast (app E1 (cast V'1 T1'2 L1 T1'1)) T2'1 L1 T2'2)}.
+apply nstep_transitivity to ArgumenCatches CastStep. 
+search.
+
+case Less2(keep). case Less3(keep). Contra : case Value2. case Contra1.
+case Type2(keep). case Value2(keep).
+case H6. apply consistency_symmetry to H8. 
+
+%NewTypeArg : assert {typeOfCC (cast E3 T3 L2 T1'1) T1'1}.
+%case Less3(keep). case Less4(keep).
+%NewLessArg : assert {lessPrecise (cast E3 T3 L2 T1'1) E2'1}.
+
+NewStepFirstElement : apply catch_up_to_value_on_left to TypeArgPrime ValueArgPrime TypeArg LessArg.  
+WrappedE1Value : assert {value (cast E1 (arrow T1'1 T2'1) L2 (arrow T3 T1))}.
+ArgumenCatches : apply nstep_app2 to NewStepFirstElement WrappedE1Value. 
+CastStep : assert {nstep (app (cast E1 (arrow T1'1 T2'1) L2 (arrow T3 T1)) V'1) (cast (app E1 (cast V'1 T3 L2 T1'1)) T2'1 L2 T1)}. 
+CastMultiStep : apply nstep_transitivity to ArgumenCatches CastStep. 
+apply preservation_nstep to TypeArg NewStepFirstElement. 
+NewTypeArg : assert {typeOfCC (cast V'1 T3 L2 T1'1) T1'1}.
+case Less3(keep). case Less4(keep).
+NewLessArg : assert {lessPrecise (cast V'1 T3 L2 T1'1) E2'1}.
+Newstep : apply IH to ValueNake Type1 Value1 H5 H7 Less1 NewTypeArg TypeArgPrime ValueArgPrime NewLessArg.
+ForComposition : apply nstep_cast to Newstep with T1 = T2'1, L = L2, T2 = T1.
+apply nstep_transitivity to CastMultiStep ForComposition. 
+case H2.
+apply consistency_symmetry to H17. 
+apply consistency_symmetry to H18. 
+search. 
+
+case Less3(keep). 
+apply type_uniqueness to Less2 Type2.
+apply type_uniqueness to Less2 Type2.
+case Less4. search. 
+
+
+Theorem unwrapping_fst : forall V V' T1' T2' T2 T6 T1 T5 L, 
+{value V} -> 
+{typeOfCC (cast V (times T1' T2') L (times T2 T6)) (times T2 T6)} -> 
+{value (cast V (times T1' T2') L (times T2 T6))} -> 
+{typeOfCC V' (times T1 T5)} -> 
+{value V'} -> 
+{lessPrecise V' (cast V (times T1' T2') L (times T2 T6))} -> 
+ exists E1', {nstep (fst V') E1'} /\
+   {lessPrecise E1' (cast (fst V) T1' L T2)}.
+induction on 6.
+intros ValueNake Type1 Value1 Type2 Value2 Less.
+Less : case Less(keep).
+
+case Less2(keep). Contra : case Value2. case Contra1.
+case Less3(keep). case Type2.
+case Value2(keep).
+CastStep : assert {nstep (fst (cast E1 (times T1'1 T2'1) L1 (times T1'2 T2'2))) (cast (fst E1) T1'1 L1 T1'2)}.
+search.
+
+case Less2(keep). case Less3(keep). Contra : case Value2. case Contra1.
+case Type2(keep). case Value2(keep).
+apply IH to ValueNake Type1 Value1 H5 H7 Less1.
+CastStep : assert {nstep (fst (cast E1 (times T1'1 T2'1) L2 (times T1 T5))) (cast (fst E1) T1'1 L2 T1)}. 
+apply nstep_cast to H8 with T1 = T1'1, L = L2, T2 = T1.
+apply nstep_transitivity to CastStep H10. 
+case Less4. case H2.
+search. 
+
+case Less3(keep). 
+apply type_uniqueness to Less2 Type2.
+case Less4. search. 
+
+
+Theorem unwrapping_snd : forall V V' T1' T2' T2 T6 T1 T5 L, 
+{value V} -> 
+{typeOfCC (cast V (times T1' T2') L (times T2 T6)) (times T2 T6)} -> 
+{value (cast V (times T1' T2') L (times T2 T6))} -> 
+{typeOfCC V' (times T1 T5)} -> 
+{value V'} -> 
+{lessPrecise V' (cast V (times T1' T2') L (times T2 T6))} -> 
+ exists E1', {nstep (snd V') E1'} /\
+   {lessPrecise E1' (cast (snd V) T2' L T6)}.
+induction on 6.
+intros ValueNake Type1 Value1 Type2 Value2 Less.
+Less : case Less(keep).
+
+case Less2(keep). Contra : case Value2. case Contra1.
+case Less3(keep). case Type2.
+case Value2(keep).
+CastStep : assert {nstep (snd (cast E1 (times T1'1 T2'1) L1 (times T1'2 T2'2))) (cast (snd E1) T2'1 L1 T2'2)}.
+search.
+
+case Less2(keep). case Less3(keep). Contra : case Value2. case Contra1.
+case Type2(keep). case Value2(keep).
+apply IH to ValueNake Type1 Value1 H5 H7 Less1.
+CastStep : assert {nstep (snd (cast E1 (times T1'1 T2'1) L2 (times T1 T5))) (cast (snd E1) T2'1 L2 T5)}. 
+apply nstep_cast to H8 with T1 = T2'1, L = L2, T2 = T5.
+apply nstep_transitivity to CastStep H10. 
+case Less4. case H2.
+search. 
+
+case Less3(keep). 
+apply type_uniqueness to Less2 Type2.
+case Less4. search. 
+
+Theorem unwrapping_head : forall V V' T'1 T'' T1 L, 
+{value V} -> 
+{typeOfCC (cast V (list T'1) L (list T'')) (list T'')} -> 
+{value (cast V (list T'1) L (list T''))} -> 
+{typeOfCC V' (list T1)} -> 
+{value V'} -> 
+{lessPrecise V' (cast V (list T'1) L (list T''))} -> 
+ exists E1', {nstep (head T1 V') E1'} /\
+   {lessPrecise E1' (cast (head T'1 V) T'1 L T'')}.
+
+induction on 6.
+intros ValueNake Type1 Value1 Type2 Value2 Less.
+Less : case Less(keep).
+
+case Less2(keep). Contra : case Value2. case Contra1.
+case Less3(keep). case Type2.
+case Value2(keep).
+CastStep : assert {nstep (head T1 (cast E1 (list T') L1 (list T'2))) (cast (head T' E1) T' L1 T'2)}.
+search.
+
+case Less2(keep). case Less3(keep). Contra : case Value2. case Contra1.
+case Type2(keep). case Value2(keep).
+apply IH to ValueNake Type1 Value1 H4 H6 Less1.
+CastStep : assert {nstep (head T1 (cast E1 (list T') L2 (list T1))) (cast (head T' E1) T' L2 T1)}. 
+apply nstep_cast to H7 with T1 = T', L = L2, T2 = T1.
+apply nstep_transitivity to CastStep H9. 
+case Less4. case H2.
+search. 
+
+case Less3(keep). 
+apply type_uniqueness to Less2 Type2.
+apply type_uniqueness to Less2 Type2.
+case Less4. search. 
+
+
+Theorem unwrapping_tail : forall V V' T'1 T'' T1 L, 
+{value V} -> 
+{typeOfCC (cast V (list T'1) L (list T'')) (list T'')} -> 
+{value (cast V (list T'1) L (list T''))} -> 
+{typeOfCC V' (list T1)} -> 
+{value V'} -> 
+{lessPrecise V' (cast V (list T'1) L (list T''))} -> 
+ exists E1', {nstep (tail T1 V') E1'} /\
+   {lessPrecise E1' (cast (tail T'1 V) (list T'1) L (list T''))}.
+
+induction on 6.
+intros ValueNake Type1 Value1 Type2 Value2 Less.
+Less : case Less(keep).
+
+case Less2(keep). Contra : case Value2. case Contra1.
+case Less3(keep). case Type2.
+case Value2(keep).
+CastStep : assert {nstep (tail T1 (cast E1 (list T') L1 (list T'2))) (cast (tail T' E1) (list T') L1 (list T'2))}.
+search.
+
+case Less2(keep). case Less3(keep). Contra : case Value2. case Contra1.
+case Type2(keep). case Value2(keep).
+apply IH to ValueNake Type1 Value1 H4 H6 Less1.
+CastStep : assert {nstep (tail T1 (cast E1 (list T') L2 (list T1))) (cast (tail T' E1) (list T') L2 (list T1))}. 
+apply nstep_cast to H7 with T1 = (list T'), L = L2, T2 = (list T1).
+apply nstep_transitivity to CastStep H9. 
+case Less4. case H2.
+search. 
+
+case Less3(keep). 
+apply type_uniqueness to Less2 Type2.
+apply type_uniqueness to Less2 Type2.
+case Less4. search. 
+
+
+Theorem unwrapping_isnil : forall V V' T'1 T'' T1 L, 
+{value V} -> 
+{typeOfCC (cast V (list T'1) L (list T'')) (list T'')} -> 
+{value (cast V (list T'1) L (list T''))} -> 
+{typeOfCC V' (list T1)} -> 
+{value V'} -> 
+{lessPrecise V' (cast V (list T'1) L (list T''))} -> 
+ exists E1', {nstep (isnil T1 V') E1'} /\
+   {lessPrecise E1' (isnil T'1 V)}.
+
+induction on 6.
+intros ValueNake Type1 Value1 Type2 Value2 Less.
+Less : case Less(keep).
+
+case Less2(keep). Contra : case Value2. case Contra1.
+case Less3(keep). case Type2.
+case Value2(keep).
+CastStep : assert {nstep (isnil T1 (cast E1 (list T') L1 (list T'2))) (isnil T' E1) }.
+search.
+
+case Less2(keep). case Less3(keep). Contra : case Value2. case Contra1.
+case Type2(keep). case Value2(keep).
+apply IH to ValueNake Type1 Value1 H4 H6 Less1.
+CastStep : assert {nstep (isnil T1 (cast E1 (list T') L2 (list T1))) (isnil T' E1)}. 
+apply nstep_transitivity to CastStep H7. 
+case Less4. case H2.
+search. 
+
+case Less3(keep). 
+apply type_uniqueness to Less2 Type2.
+apply type_uniqueness to Less2 Type2.
+case Less4. search. 
+
+
+Theorem unwrapping_case : forall V V' T1' T2' T8 T7 T4 T3 L, 
+{value V} -> 
+{typeOfCC (cast V (sum T1' T2') L (sum T8 T7)) (sum T8 T7)} -> 
+{value (cast V (sum T1' T2') L (sum T8 T7))} -> 
+{typeOfCC V' (sum T4 T3)} -> 
+{value V'} -> 
+{lessPrecise V' (cast V (sum T1' T2') L (sum T8 T7))} -> 
+forall R1 R2 R1' R2' T1 T2, 
+nabla n1, {typeOfCC n1 T4 |- typeOfCC (R1 n1) T1} ->
+nabla n1, {typeOfCC n1 T3 |- typeOfCC (R2 n1) T1} -> 
+nabla n1, {typeOfCC n1 T8 |- typeOfCC (R1' n1) T2} ->
+nabla n1, {typeOfCC n1 T7 |- typeOfCC (R2' n1) T2} -> 
+nabla n1, nabla n2, {lessPrecise n1 n2, typeOfCC n1 T4, typeOfCC n2 T8 |- lessPrecise (R1 n1) (R1' n2)} -> 
+nabla n1, nabla n2, {lessPrecise n1 n2, typeOfCC n1 T3, typeOfCC n2 T7 |- lessPrecise (R2 n1) (R2' n2)} -> 
+ exists E1', {nstep (case V' R1 R2) E1'} /\
+   {lessPrecise E1'
+         (case V (x\R1' (cast x T1' L T8)) (x\R2' (cast x T2' L T7)))}.
+
+induction on 6.
+intros ValueNake Type1 Value1 Type2 Value2 Less TypeR1 TypeR2 TypeR1Prima TypeR2Prima LessR1 LessR1Prime.
+Less : case Less(keep).
+
+%case 1
+case Less2(keep). Contra : case Value2. case Contra1.
+case Less3(keep). case Type2.
+case Value2(keep).
+CastStep : assert {nstep (case (cast E1 (sum T1'1 T2'1) L1 (sum T1'2 T2'2)) R1 R2)   (case E1 (x\R1 (cast x T1'1 L1 T1'2)) (x\R2 (cast x T2'1 L1 T2'2))) }.
+ForFlows : case Type1(keep). Flows : case ForFlows1. 
+Build1 : assert {lessPrecise n1 n2 |- lessPrecise (cast n1 T1'1 L1 T1'2) (cast n2 T1' L T8)}.
+Cut1 : inst LessR1 with n1 = (cast n1 T1'1 L1 T1'2), n2 = (cast n2 T1' L T8).
+Ancora : cut Cut1 with Build1.
+Vedemo2 : assert {typeOfCC n2 T1', flow T1' T8 |- typeOfCC (cast n2 T1' L T8) T8}.
+Ancora2 : cut Vedemo2 with Flows.
+FinalPrimo : cut Ancora with Ancora2.
+Build2 : assert {lessPrecise n1 n2 |- lessPrecise (cast n1 T2'1 L1 T2'2) (cast n2 T2' L T7)}.
+Cut2 : inst LessR1Prime with n1 = (cast n1 T2'1 L1 T2'2), n2 = (cast n2 T2' L T7).
+Uffa : cut Cut2 with Build2.
+Vedemo : assert {typeOfCC n2 T2', flow T2' T7 |- typeOfCC (cast n2 T2' L T7) T7}.
+Uffa2 : cut Vedemo with Flows1.
+FinalSecondo : cut Uffa with Uffa2.
+Flows : case Type2. RealFlows : case Flows3. 
+TypeForN1 : assert {typeOfCC n1 T1'1, flow T1'1 T4 |- typeOfCC (cast n1 T1'1 L1 T4) T4}.
+VEDEMO : cut TypeForN1 with RealFlows.
+cut FinalPrimo with VEDEMO. 
+TypeForN1Altro : assert {typeOfCC n1 T2'1, flow T2'1 T3 |- typeOfCC (cast n1 T2'1 L1 T3) T3}.
+ARIVEDEMO : cut TypeForN1Altro with RealFlows1.
+cut FinalSecondo with ARIVEDEMO. 
+search. 
+
+%case 2
+case Less2(keep). case Less3(keep). Contra : case Value2. case Contra1.
+case Type2(keep). case Value2(keep).
+CastStep : assert {nstep (case (cast E1 (sum T1'1 T2'1) L2 (sum T4 T3)) R1 R2) (case E1 (x\R1 (cast x T1'1  L2 T4)) (x\R2 (cast x T2'1 L2 T3)))}. 
+apply IH to ValueNake Type1 Value1 H5 H7 Less1.
+
+ToTheGoal1 : apply H8 with R1 = (x\R1 (cast x T1'1 L2 T4)), R2 = (x\R2 (cast x T2'1 L2 T3)), R1' = R1', R2' = R2', T1 = T1, T2 = T2. 
+
+Flows : case H6.
+FlowsOther : case H2.
+
+Build1 : assert {typeOfCC n1 T1'1, flow T1'1 T4 |- typeOfCC (cast n1 T1'1 L2 T4) T4}.
+ToCut1 : cut Build1 with Flows.
+Cut1 : inst TypeR1 with n1 = (cast n1 T1'1 L2 T4).
+ToIHoutput1 : cut Cut1 with ToCut1.
+ToTheGoal2 : apply ToTheGoal1 to ToIHoutput1.
+
+Build2 : assert {typeOfCC n1 T2'1, flow T2'1 T3 |- typeOfCC (cast n1 T2'1 L2 T3) T3}.
+ToCut2 : cut Build2 with Flows1.
+Cut2 : inst TypeR2 with n1 = (cast n1 T2'1 L2 T3).
+ToIHoutput2 : cut Cut2 with ToCut2.
+ToTheGoal3 : apply ToTheGoal2 to ToIHoutput2.
+
+ToTheGoal4 : apply ToTheGoal3 to TypeR1Prima.
+ToTheGoal5 : apply ToTheGoal4 to TypeR2Prima.
+
+LessInfos : case Less4(keep).
+Build3 : assert {lessPrecise n1 n2, typeOfCC n2 T8, lessPreciseType T1'1 T8, lessPreciseType T4 T8 |- lessPrecise (cast n1 T1'1 L2 T4) n2 }.
+ToCut3 : cut Build3 with LessInfos.
+ToCut4 : cut ToCut3 with H3.
+Cut3 : inst LessR1 with n1 = (cast n1 T1'1 L2 T4), n2 = n2. 
+Cut4 : cut Cut3 with ToCut4.
+TypeForN1 : assert {typeOfCC n1 T1'1, flow T1'1 T4 |- typeOfCC (cast n1 T1'1 L2 T4) T4}.
+VEDEMO : cut TypeForN1 with Flows.
+Cut5 : cut Cut4 with VEDEMO. 
+ToTheGoal6 : apply ToTheGoal5 to Cut5.
+clear TypeForN1 VEDEMO Cut5. 
+
+Build4 : assert {lessPrecise n1 n2, typeOfCC n2 T7, lessPreciseType T2'1 T7, lessPreciseType T3 T7 |- lessPrecise (cast n1 T2'1 L2 T3) n2 }.
+ToCut5 : cut Build4 with LessInfos1.
+ToCut6 : cut ToCut5 with H4.
+Cut6 : inst LessR1Prime with n1 = (cast n1 T2'1 L2 T3), n2 = n2. 
+TypeForN1 : assert {typeOfCC n1 T2'1, flow T2'1 T3 |- typeOfCC (cast n1 T2'1 L2 T3) T3}.
+VEDEMO : cut TypeForN1 with Flows1.
+Cut7 : cut Cut6 with ToCut6. 
+ToIH : cut Cut7 with VEDEMO. 
+Outputs : apply ToTheGoal6 to ToIH.
+
+apply nstep_transitivity to CastStep Outputs. 
+search. 
+
+%case 3
+case Less3(keep). 
+apply type_uniqueness to Less2 Type2.
+apply type_uniqueness to Less2 Type2.
+case Less4. 
+% for R1
+Build1 : assert {lessPrecise n1 n2, typeOfCC n1 T4, lessPreciseType T4 T1', lessPreciseType T4 T8 |- lessPrecise n1 (cast n2 T1' L T8) }.
+ToCut1 : cut Build1 with H1.
+ToCut2 : cut ToCut1 with H3.
+Cut1 : inst LessR1 with n2 = (cast n2 T1' L T8). 
+Cut2 : cut Cut1 with ToCut2.
+case Type1. Flows: case H6. 
+ForN2 : assert {typeOfCC n2 T1', flow T1' T8 |- typeOfCC (cast n2 T1' L T8) T8}.
+ForN2Daie : cut ForN2 with Flows.
+cut Cut2 with ForN2Daie.
+clear Build1 ToCut1 ToCut2 Cut1 Cut2 ForN2 ForN2Daie.
+% for R2
+Build1 : assert {lessPrecise n1 n2, typeOfCC n1 T3, lessPreciseType T3 T2', lessPreciseType T3 T7 |- lessPrecise n1 (cast n2 T2' L T7) }.
+ToCut1 : cut Build1 with H2.
+ToCut2 : cut ToCut1 with H4.
+Cut1 : inst LessR1Prime with n2 = (cast n2 T2' L T7). 
+Cut2 : cut Cut1 with ToCut2.
+ForN2 : assert {typeOfCC n2 T2', flow T2' T7 |- typeOfCC (cast n2 T2' L T7) T7}.
+ForN2Daie : cut ForN2 with Flows1.
+cut Cut2 with ForN2Daie.
+
+search. 
+
+
+
+Theorem unwrapping_appT : forall V V' R R' R1 T T' L, 
+{value V} -> 
+{typeOfCC (cast V (all R') L (all R1)) (all R1)} -> 
+{value (cast V (all R') L (all R1))} -> 
+{typeOfCC V' (all R)} -> 
+{value V'} -> 
+{lessPrecise V' (cast V (all R') L (all R1))} -> 
+{lessPreciseType T T'} -> 
+ exists E1', {nstep (appT V' T) E1'} /\
+   {lessPrecise E1' (cast (appT V T') (R' T') L (R1 T'))}.
+
+induction on 6.
+intros ValueNake Type1 Value1 Type2 Value2 Less LessType.
+Less : case Less(keep).
+
+case Less2(keep). Contra : case Value2. case Contra1.
+case Less3(keep). case Type2.
+case Value2(keep).
+CastStep : assert {nstep (appT (cast E1 (all R'1) L1 (all R'2)) T) (cast (appT E1 T) (R'1 T) L1 (R'2 T))}.
+ChainFirst : inst H1 with n1 = T, n2 = T'.
+cut ChainFirst with LessType.
+ChainSecond : inst H2 with n1 = T, n2 = T'.
+cut ChainSecond with LessType. 
+search.
+
+case Less2(keep). case Less3(keep). Contra : case Value2. case Contra1.
+case Type2(keep). case Value2(keep).
+apply IH to ValueNake Type1 Value1 H4 H6 Less1 LessType.
+CastStep : assert {nstep (appT (cast E1 (all R'1) L2 (all R)) T) (cast (appT E1 T) (R'1 T) L2 (R T))}. 
+apply nstep_cast to H7 with T1 = (R'1 T), L = L2, T2 = (R T).
+apply nstep_transitivity to CastStep H9. 
+case Less4. case H2.
+ChainFirst : inst H3 with n1 = T, n2 = T'.
+cut ChainFirst with LessType.
+ChainSecond : inst H11 with n1 = T, n2 = T'.
+cut ChainSecond with LessType. 
+inst H12 with n1 = T'.
+search.
+
+case Less3(keep). 
+apply type_uniqueness to Less2 Type2.
+apply type_uniqueness to Less2 Type2.
+case Less4. 
+ChainFirst : inst H1 with n1 = T, n2 = T'.
+cut ChainFirst with LessType.
+ChainSecond : inst H2 with n1 = T, n2 = T'.
+cut ChainSecond with LessType. 
+search. 
+
+
+Theorem unwrapping_unfold : forall V V' R R' R1 L, 
+{value V} -> 
+{typeOfCC (cast V (mu R') L (mu R1)) (mu R1)} -> 
+{value (cast V (mu R') L (mu R1))} -> 
+{typeOfCC V' (mu R)} -> 
+{value V'} -> 
+{lessPrecise V' (cast V (mu R') L (mu R1))} -> 
+ exists E1', {nstep (unfold V') E1'} /\
+   {lessPrecise E1' (cast (unfold V) (R' (mu R')) L (R1 (mu R1)))}.
+
+induction on 6.
+intros ValueNake Type1 Value1 Type2 Value2 Less LessType.
+Less : case Less(keep).
+
+case Less2(keep). Contra : case Value2. case Contra1.
+case Less3(keep). case Type2.
+case Value2(keep).
+CastStep : assert {nstep (unfold (cast E1 (mu R'1) L1 (mu R'2))) (cast (unfold E1) (R'1 (mu R'1)) L1 (R'2 (mu R'2)))}.
+ChainFirst : inst H1 with n1 = (mu R'1), n2 = (mu R').
+cut ChainFirst with Less2.
+ChainSecond : inst H2 with n1 = (mu R'2), n2 = (mu R1).
+cut ChainSecond with Less3. 
+search.
+
+case Less2(keep). case Less3(keep). Contra : case Value2. case Contra1.
+case Type2(keep). case Value2(keep).
+apply IH to ValueNake Type1 Value1 H4 H6 Less1.
+CastStep : assert {nstep (unfold (cast E1 (mu R'1) L2 (mu R))) (cast (unfold E1) (R'1 (mu R'1)) L2 (R (mu R)))}. 
+apply nstep_cast to H7 with T1 = (R'1 (mu R'1)), L = L2, T2 = (R (mu R)).
+apply nstep_transitivity to CastStep H9. 
+case Less4(keep). case H2(keep).
+inst H12 with n1 = (mu R'), n2 = (mu R1).
+case H13(keep).
+assert {typeOfCC  (unfold V) (R' (mu R'))}.
+assert {typeOfCC (cast (unfold V) (R' (mu R')) L (R1 (mu R1))) (R1 (mu R1))}.
+ChainFirst : inst H3 with n1 = (mu R'1), n2 = (mu R1).
+cut ChainFirst with Less3.
+ChainSecond : inst H11 with n1 = (mu R), n2 = (mu R1).
+cut ChainSecond with Less4. 
+search.
+
+case Less3(keep). 
+apply type_uniqueness to Less2 Type2.
+apply type_uniqueness to Less2 Type2.
+case Less4(keep). 
+ChainFirst : inst H1 with n1 = (mu R), n2 = (mu R').
+cut ChainFirst with Less3.
+ChainSecond : inst H2 with n1 = (mu R), n2 = (mu R1).
+cut ChainSecond with Less4. 
+search. 
+
+
+Theorem unwrapping_cast_both_sides : forall E3 T4 L1 T1 E1' T1' L2 T2 E2', 
+{typeOfCC (cast E3 T4 L1 T1) T1} -> 
+{typeOfCC (cast E1' T1' L2 T2) T2} -> 
+{lessPrecise E3 E1'} ->
+{lessPreciseType T4 T1'} -> 
+{lessPreciseType T1 T2} -> 
+{stepC (cast E1' T1' L2 T2) E2'} -> 
+ exists E1', {nstep (cast E3 T4 L1 T1) E1'} /\ {lessPrecise E1' E2'}.
+intros Type1 Type2 LessE LessT1 LessT2 Step.
+Type1 : case Type1. Type2 : case Type2. Value : case Step. 
+  % here it opened the cast reductions 
+       % 1
+	   NewStep : apply catch_up_to_value_on_left to Type2 Value Type1 LessE. 
+	   NStep : apply nstep_cast  to NewStep with T1 = T4, L = L1, T2 = T1.
+	   search. 
+	   % 2 
+	   ValueReal : assert {value (cast E2' T2 L4 dyn)}.
+	   NewStep : apply catch_up_to_value_on_left to Type2 ValueReal Type1 LessE. 
+	   NStep : apply nstep_cast to NewStep with T1 = T4, L = L1, T2 = T1.
+	   case LessT1. 
+	   TypeV : apply preservation_nstep to Type1 NewStep.
+	   Canonical : apply canonical_form_dyn to TypeV NewStep1.
+	   TypeVReal : case TypeV(keep).
+	   Type2Real : case Type2(keep).
+	   apply less_precise_casts_ground_to_dyn to TypeVReal Type2Real Canonical Value NewStep2 Canonical1 Value1.
+	   apply lessPreciseType_reflexivity with T = T2. 
+	   Choice : apply lessPrecise_of_ground_is_dyn_or_ground to LessT2 Value1.
+	   case Choice. 
+	     % dyn
+	     PlusOne : assert {step (cast (cast V'1 T2 L dyn) dyn L1 dyn) (cast V'1 T2 L dyn)}.
+		 apply nstep_plus_one to NStep PlusOne. 
+		 case Type2(keep).
+		 case NewStep2. 
+		   search. 
+		     TypeVReal : case TypeV. Contra : apply less_precise_means_less_precise_type to TypeVReal Type2 H5.
+			 case Contra. case Canonical1. 
+		   search. 
+		 
+		 % ground
+	     PlusOne : assert {step (cast (cast V'1 T2 L dyn) dyn L1 T2) V'1}.
+		 apply nstep_plus_one to NStep PlusOne. 
+		 case Type2(keep).
+		 case NewStep2. 
+		   search. 
+		     TypeVReal : case TypeV. Contra : apply less_precise_means_less_precise_type to TypeVReal Type2 H5.
+			 case Contra. case Canonical1. 
+		   search. 
+
+	   % 3
+	   search. 
+	   
+	   % 4
+	   case LessT2. 
+	   NewStep : apply catch_up_to_value_on_left to Type2 Value Type1 LessE. 
+	   NStep : apply nstep_cast  to NewStep with T1 = T4, L = L1, T2 = dyn.
+	   case LessT1. 
+	     % int, bool
+	     case Value1. case Value1.
+		 % dyn
+		 search.
+		 % arrow, times, sum, lists, all, mu
+		 case Value1. search. 
+		 case Value1. search. 
+		 case Value1. search. 
+		 case Value1. search. 
+		 case Value1. search. 
+		 case Value1. search. 
+	   
+	   % 5
+	   case LessT1. case LessT2.
+	     % int, bool
+	     case Value1. case Value1.
+		 % dyn
+		 search.
+		 % arrow, times, sum, lists, all, mu
+		 case Value1. search. 
+		 case Value1. search. 
+		 case Value1. search. 
+		 case Value1. search. 
+		 case Value1. search. 
+		 case Value1. search. 
+		    
+
+Theorem unwrapping_cast_on_right : forall E1 T E3 T4 L2 T2 E2', 
+{typeOfCC E1 T} -> 
+{typeOfCC (cast E3 T4 L2 T2) T2} -> 
+{lessPrecise E1 E3} ->
+{lessPreciseType T T4} -> 
+{lessPreciseType T T2} -> 
+{stepC (cast E3 T4 L2 T2) E2'} -> 
+ exists E1', {nstep E1 E1'} /\ {lessPrecise E1' E2'}.
+intros Type1 Type2 LessE LessT1 LessT2 Step. 
+Type2 : case Type2. Value : case Step. 
+  % here it opened the cast reductions 
+       % 1
+	   NewStep : apply catch_up_to_value_on_left to Type2 Value Type1 LessE. 
+	   search. 
+	   
+	   % 2 
+	   case LessT1.
+	   ValueReal : assert {value (cast E2' T2 L3 dyn)}.
+	   NewStep : apply catch_up_to_value_on_left to Type2 ValueReal Type1 LessE. 
+	   TypeV : apply preservation_nstep to Type1 NewStep.
+	   Canonical : apply canonical_form_dyn to TypeV NewStep1.
+	   TypeVReal : case TypeV(keep).
+	   Type2Real : case Type2(keep).
+	   apply less_precise_casts_ground_to_dyn to TypeVReal Type2Real Canonical Value NewStep2 Canonical1 Value1.
+ 	   apply lessPreciseType_reflexivity with T = T2. 
+	   Choice : apply lessPrecise_of_ground_is_dyn_or_ground to LessT2 Value1.
+	   case Choice. 
+	   % dyn
+	   case Type2(keep).
+	   case NewStep2. 
+	     search. 
+		     TypeVReal : case TypeV. Contra : apply less_precise_means_less_precise_type to TypeVReal Type2 H4.
+			 case Contra. case Canonical1. 
+		 search. 
+		 
+		 % ground
+		 case Type2(keep).
+		 case NewStep2. 
+		   search. 
+		     TypeVReal : case TypeV. Contra : apply less_precise_means_less_precise_type to TypeVReal Type2 H4.
+			 case Contra. case Canonical1. 
+		   search. 
+		 
+	   % 3
+	   search. 
+
+	   % 4
+	   case LessT2. 
+	   NewStep : apply catch_up_to_value_on_left to Type2 Value Type1 LessE. 
+	   case Value1. 
+		 % arrow, times, sum, lists, all, mu
+		 search. search. search. search. search. search. 
+	   
+	   % 5
+	   case LessT1. case Value1. 
+		 % arrow, times, sum, lists, all, mu
+		 search. search. search. search. search. search. 
+	  
+  
+  

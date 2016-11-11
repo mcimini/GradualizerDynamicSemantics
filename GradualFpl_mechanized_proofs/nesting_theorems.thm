@@ -1,0 +1,369 @@
+Specification "gradual_fpl".
+
+Import "type_uniqueness".
+Import "auxiliary".
+Import "less_precision".
+
+
+Theorem nested_value_is_less_ground : forall V L G E T T1, 
+	{ground T} -> 
+	{typeOfCC (cast V G L dyn) dyn} -> 
+	{value (cast V G L dyn)} ->  
+	{lessPrecise (cast V G L dyn) E} -> 
+	{typeOfCC E T1} -> 
+	{value E} -> 
+	{lessPreciseType T T1} ->
+	{lessPrecise V E} /\ T = G. 
+induction on 4. 
+intros Or Type1 Value1 Less Type2 Value2 LessType.
+Less : case Less. 
+
+case Or.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case H2. case Value2. case Less1. case Type1. search. Contra : case Value1. case Contra1.
+case LessType. case Type2. case H2. case Value2. case Less1. case Type1. search. Contra : case Value1. case Contra1.
+
+
+apply type_uniqueness to Type2 Less1. case Or. 
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2. search. Contra : case Value1. case Contra1.
+case LessType. case Less2. search. Contra : case Value1. case Contra1.
+
+apply type_uniqueness to Type1 Less1.
+Type2 : case Type2(keep). Less1 : case Less1. 
+
+case Or. 
+
+	LessType: case LessType(keep). case Type4. Value : case Value2. case Value2.
+	MyLess : assert {lessPreciseType (arrow dyn dyn) (arrow X1 X2)}.
+	MyOr : assert {ground (arrow dyn dyn)}.
+	apply IH to MyOr Type1 Value1 Less Type3 H3 MyLess. 
+	search. 
+
+	LessType: case LessType(keep). case Type4. Value : case Value2. case Value2.
+	MyLess : assert {lessPreciseType (mu x\dyn) (mu R1)}.
+	MyOr : assert {ground (mu x\dyn)}.
+	apply IH to MyOr Type1 Value1 Less Type3 H2 MyLess. 
+	search. 
+
+	LessType: case LessType(keep). case Type4. Value : case Value2. case Value2.
+	MyLess : assert {lessPreciseType (all x\dyn) (all X1)}.
+	MyOr : assert {ground (all x\dyn)}.
+	apply IH to MyOr Type1 Value1 Less Type3 H2 MyLess. 
+	search. 
+
+	LessType: case LessType(keep). case Type4. Value : case Value2. case Value2.
+	MyLess : assert {lessPreciseType (list dyn) (list X1)}.
+	MyOr : assert {ground (list dyn)}.
+	apply IH to MyOr Type1 Value1 Less Type3 H2 MyLess. 
+	search. 
+
+	LessType: case LessType(keep). case Type4. Value : case Value2. case Value2.
+	MyLess : assert {lessPreciseType (sum dyn dyn) (sum X1 X2)}.
+	MyOr : assert {ground (sum dyn dyn)}.
+	apply IH to MyOr Type1 Value1 Less Type3 H3 MyLess. 
+	search. 
+
+	LessType: case LessType(keep). case Type4. Value : case Value2. case Value2.
+	MyLess : assert {lessPreciseType (times dyn dyn) (times X1 X2)}.
+	MyOr : assert {ground (times dyn dyn)}.
+	apply IH to MyOr Type1 Value1 Less Type3 H3 MyLess. 
+	search. 
+
+	LessType: case LessType(keep). case Type4. Value : case Value2. 
+	case Value2.
+	LessType: case LessType(keep). case Type4. Value : case Value2. 
+	case Value2.
+		
+case Value2.
+
+
+
+Theorem nested_value_is_less_getGround : forall V L G G1 E T T1, 
+	{getGroundOf T G1} -> 
+	{typeOfCC (cast V G L dyn) dyn} -> 
+	{value (cast V G L dyn)} ->  
+	{lessPrecise (cast V G L dyn) E} -> 
+	{typeOfCC E T1} -> 
+	{value E} -> 
+	{lessPreciseType T T1} ->
+	{lessPrecise V E} /\ G1 = G. 
+induction on 4. 
+intros Or Type1 Value1 Less Type2 Value2 LessType.
+Less : case Less. 
+
+case Or.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Type2. case Value2. case Type1. case Less1.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+
+apply type_uniqueness to Type2 Less1. case Or. 
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+case LessType. case Less2.  Contra : case Value1. case Contra1. Contra : case Value1. case Contra1. search.
+
+apply type_uniqueness to Type1 Less1.
+Type2 : case Type2(keep). Less1 : case Less1. Value2 : case Value2(keep). 
+
+case LessType. case Or. 
+
+LessType: case LessType(keep). 
+	case Or. 
+	LessTypeForCall : apply lessPreciseType_reflexivity with T = (arrow T6 T5).
+	MyOr : assert {getGroundOf (arrow T6 T5) (arrow dyn dyn)}.
+	case Or. 
+	apply IH to MyOr Type1 Value1 Less Type3 Value3 LessTypeForCall. 
+	search. 
+
+LessType: case LessType(keep). 
+	case Or. 
+	LessTypeForCall : apply lessPreciseType_reflexivity with T = (mu T5).
+	MyOr : assert {getGroundOf (mu T5) (mu x\dyn)}.
+	case Or. 
+	apply IH to MyOr Type1 Value1 Less Type3 Value3 LessTypeForCall. 
+	search. 
+
+LessType: case LessType(keep). 
+	case Or. 
+	LessTypeForCall : apply lessPreciseType_reflexivity with T = (all T5).
+	MyOr : assert {getGroundOf (all T5) (all x\dyn)}.
+	case Or. 
+	apply IH to MyOr Type1 Value1 Less Type3 Value3 LessTypeForCall. 
+	search. 
+
+LessType: case LessType(keep). 
+	case Or. 
+	LessTypeForCall : apply lessPreciseType_reflexivity with T = (list T5).
+	MyOr : assert {getGroundOf (list T5) (list dyn)}.
+	case Or. 
+	apply IH to MyOr Type1 Value1 Less Type3 Value3 LessTypeForCall. 
+	search. 
+
+LessType: case LessType(keep). 
+	case Or. 
+	LessTypeForCall : apply lessPreciseType_reflexivity with T = (sum T6 T5).
+	MyOr : assert {getGroundOf (sum T6 T5) (sum dyn dyn)}.
+	case Or. 
+	apply IH to MyOr Type1 Value1 Less Type3 Value3 LessTypeForCall. 
+	search. 
+
+LessType: case LessType(keep). 
+	case Or. 
+	LessTypeForCall : apply lessPreciseType_reflexivity with T = (times T6 T5).
+	MyOr : assert {getGroundOf (times T6 T5) (times dyn dyn)}.
+	case Or. 
+	apply IH to MyOr Type1 Value1 Less Type3 Value3 LessTypeForCall. 
+	search. 
+
+case Value2.
+
+
+Theorem nested_ground_must_synch_arrow : forall V G L E T1 T2,
+	{value (cast V G L dyn)} -> 
+	{typeOfCC E (arrow T1 T2)} -> 
+	{value E} -> 
+	{lessPrecise (cast V G L dyn) E} -> 
+		G = (arrow dyn dyn). 
+induction on 4.
+intros Value1 Type1 Value2 Less. 
+Less : case Less. 
+case Type1. case Value2. case Less1. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+apply type_uniqueness to Type1 Less1.
+Less : case Less2. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+case Type1.	case Value2. case Less1.
+apply IH to Value1 H1 H3 Less. search. 
+case Value2.
+
+
+Theorem nested_value_is_less_arrow : forall V L E T1 T2, 
+	{typeOfCC (cast V (arrow dyn dyn) L dyn) dyn} -> 
+	{value (cast V (arrow dyn dyn) L dyn)} ->  
+	{lessPrecise (cast V (arrow dyn dyn) L dyn) E} -> 
+	{typeOfCC E (arrow T1 T2)} -> 
+	{value E} -> 
+	{lessPrecise V E}. 
+induction on 3.
+intros Type1 Value1 Less Type2 Value2. 
+Less : case Less. 
+case Type2. case Value2. case Type1. search. 
+search.
+case Type2. case Value2. case Less1. apply IH to Type1 Value1 Less H1 H3. search.
+case Value2. 
+
+Theorem nested_ground_must_synch_mu : forall V G L E T,
+	{value (cast V G L dyn)} -> 
+	{typeOfCC E (mu T)} -> 
+	{value E} -> 
+	{lessPrecise (cast V G L dyn) E} -> 
+		G = (mu x\dyn). 
+induction on 4.
+intros Value1 Type1 Value2 Less. 
+Less : case Less. 
+case Type1. case Value2. case Less1. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+apply type_uniqueness to Type1 Less1.
+Less : case Less2. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+case Type1.	case Value2. case Less1.
+apply IH to Value1 H1 H3 Less. search. 
+case Value2.
+
+Theorem nested_value_is_less_mu : forall V L E T, 
+	{typeOfCC (cast V (mu x\dyn) L dyn) dyn} -> {value (cast V (mu x\dyn) L dyn)} ->  {lessPrecise (cast V (mu x\dyn) L dyn) E} -> {typeOfCC E (mu T)} -> {value E} -> {lessPrecise V E}. 
+induction on 3.
+intros Type1 Value1 Less Type2 Value2. 
+Less : case Less. 
+case Type2. case Value2. case Type1. search. 
+search.
+case Type2. case Value2. case Less1. apply IH to Type1 Value1 Less H1 H3. search.
+case Value2. 
+
+
+Theorem nested_ground_must_synch_all : forall V G L E T,
+	{value (cast V G L dyn)} -> 
+	{typeOfCC E (all T)} -> 
+	{value E} -> 
+	{lessPrecise (cast V G L dyn) E} -> 
+		G = (all x\dyn). 
+induction on 4.
+intros Value1 Type1 Value2 Less. 
+Less : case Less. 
+case Type1. case Value2. case Less1. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+apply type_uniqueness to Type1 Less1.
+Less : case Less2. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+case Type1.	case Value2. case Less1.
+apply IH to Value1 H1 H3 Less. search. 
+case Value2.
+
+Theorem nested_value_is_less_all : forall V L E T, 
+	{typeOfCC (cast V (all x\dyn) L dyn) dyn} -> {value (cast V (all x\dyn) L dyn)} ->  {lessPrecise (cast V (all x\dyn) L dyn) E} -> {typeOfCC E (all T)} -> {value E} -> {lessPrecise V E}. 
+induction on 3.
+intros Type1 Value1 Less Type2 Value2. 
+Less : case Less. 
+case Type2. case Value2. case Type1. search. 
+search.
+case Type2. case Value2. case Less1. apply IH to Type1 Value1 Less H1 H3. search.
+case Value2. 
+
+		
+Theorem nested_ground_must_synch_list : forall V G L E T1,
+	{value (cast V G L dyn)} -> 
+	{typeOfCC E (list T1)} -> 
+	{value E} -> 
+	{lessPrecise (cast V G L dyn) E} -> 
+		G = (list dyn). 
+induction on 4.
+intros Value1 Type1 Value2 Less. 
+Less : case Less. 
+case Type1. case Value2. case Less1. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+apply type_uniqueness to Type1 Less1.
+Less : case Less2. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+case Type1.	case Value2. case Less1.
+apply IH to Value1 H1 H3 Less. search. 
+case Value2.
+
+
+Theorem nested_value_is_less_list : forall V L E T1, 
+	{typeOfCC (cast V (list dyn) L dyn) dyn} -> {value (cast V (list dyn) L dyn)} ->  {lessPrecise (cast V (list dyn) L dyn) E} -> {typeOfCC E (list T1)} -> {value E} -> {lessPrecise V E}. 
+induction on 3.
+intros Type1 Value1 Less Type2 Value2. 
+Less : case Less. 
+case Type2. case Value2. case Type1. search. 
+search.
+case Type2. case Value2. case Less1. apply IH to Type1 Value1 Less H1 H3. search.
+case Value2. 
+
+
+Theorem nested_ground_must_synch_sum : forall V G L E T1 T2,
+	{value (cast V G L dyn)} -> 
+	{typeOfCC E (sum T1 T2)} -> 
+	{value E} -> 
+	{lessPrecise (cast V G L dyn) E} -> 
+		G = (sum dyn dyn). 
+induction on 4.
+intros Value1 Type1 Value2 Less. 
+Less : case Less. 
+case Type1. case Value2. case Less1. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+apply type_uniqueness to Type1 Less1.
+Less : case Less2. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+case Type1.	case Value2. case Less1.
+apply IH to Value1 H1 H3 Less. search. 
+case Value2.
+
+
+Theorem nested_value_is_less_sum : forall V L E T1 T2, 
+	{typeOfCC (cast V (sum dyn dyn) L dyn) dyn} -> {value (cast V (sum dyn dyn) L dyn)} ->  {lessPrecise (cast V (sum dyn dyn) L dyn) E} -> {typeOfCC E (sum T1 T2)} -> {value E} -> {lessPrecise V E}. 
+induction on 3.
+intros Type1 Value1 Less Type2 Value2. 
+Less : case Less. 
+case Type2. case Value2. case Type1. search. 
+search.
+case Type2. case Value2. case Less1. apply IH to Type1 Value1 Less H1 H3. search.
+case Value2. 
+
+
+Theorem nested_ground_must_synch_times : forall V G L E T1 T2,
+	{value (cast V G L dyn)} -> 
+	{typeOfCC E (times T1 T2)} -> 
+	{value E} -> 
+	{lessPrecise (cast V G L dyn) E} -> 
+		G = (times dyn dyn). 
+induction on 4.
+intros Value1 Type1 Value2 Less. 
+Less : case Less. 
+case Type1. case Value2. case Less1. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+apply type_uniqueness to Type1 Less1.
+Less : case Less2. 
+	Ground : case Value1. case Ground1.
+	Ground : case Value1. case Ground1. search. 
+case Type1.	case Value2. case Less1.
+apply IH to Value1 H1 H3 Less. search. 
+case Value2.
+
+
+Theorem nested_value_is_less_times : forall V L E T1 T2, 
+	{typeOfCC (cast V (times dyn dyn) L dyn) dyn} -> {value (cast V (times dyn dyn) L dyn)} ->  {lessPrecise (cast V (times dyn dyn) L dyn) E} -> {typeOfCC E (times T1 T2)} -> {value E} -> {lessPrecise V E}. 
+induction on 3.
+intros Type1 Value1 Less Type2 Value2. 
+Less : case Less. 
+case Type2. case Value2. case Type1. search. 
+search.
+case Type2. case Value2. case Less1. apply IH to Type1 Value1 Less H1 H3. search.
+case Value2. 
+ 

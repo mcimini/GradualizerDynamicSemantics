@@ -1,0 +1,583 @@
+Specification "gradual_fpl".
+
+Import "type_uniqueness".
+Import "less_precision".
+	
+Theorem ground_different_from_dyn : forall G, {ground G} -> {different G dyn}. 
+intros Ground. case Ground. search. search. search. search. search. search. search. search. 
+
+Theorem less_precise_grounds_coincide : forall G1 G2, {ground G1} -> {ground G2} -> {lessPreciseType G1 G2} -> G1 = G2. 
+intros Ground1 Ground2 Less. 
+case Ground1. 
+	case Less. case Ground2. search. 
+	case Less. case Ground2. search. 
+	case Less. case Ground2. search. 
+	case Less. case Ground2. search. 
+	case Less. case Ground2. search. 
+	case Less. case Ground2. search. 
+	case Less. case Ground2. search. 
+	case Less. case Ground2. search. 
+	
+
+Theorem consistent_ground_coincide : forall G1 G2, {flow G1 G2} -> {ground G1} -> {ground G2} -> G1 = G2. 
+intros. case H2. 
+ case H1. case H3. case H3. search. 
+ case H1. case H3. case H3. search. 
+ case H1. case H3. case H3. search. 
+ case H1. case H3. case H3. search. 
+ case H1. case H3. case H3. search. 
+ case H1. case H3. case H3. search. 
+ case H1. case H3. case H3. search. 
+ case H1. case H3. case H3. search. 
+
+Theorem getGround_gives_ground : forall T G, {getGroundOf T G} -> {ground G}. 
+intros. case H1. search. search. search. search. search. search. 
+
+Theorem getGround_gives_lessPrecise : forall T G, {getGroundOf T G} -> {lessPreciseType G T}. 
+intros. case H1. search. search. search. search. search. search. 
+
+Theorem lessPrecise_of_ground_is_dyn_or_ground : forall T G, {lessPreciseType T G} -> {ground G} -> T = dyn \/ T = G. 
+intros. case H2. 
+ case H1. search. case H3. case H4. search. 
+ case H1. search. Feed : assert {lessPreciseType int int}. Chain1 : inst H3 with n1 = int. Cut : inst Chain1 with n2 = int. Other : cut Cut with Feed. Equal : case Other. case Equal. search. 
+ case H1. search. Feed : assert {lessPreciseType int int}. Chain1 : inst H3 with n1 = int. Cut : inst Chain1 with n2 = int. Other : cut Cut with Feed. Equal : case Other. case Equal. search. 
+ case H1. search. case H3. search. 
+ case H1. search. case H3. case H4. search. 
+ case H1. search. case H3. case H4. search. 
+ case H1. search. search. 
+ case H1. search. search. 
+ 
+Theorem casts_t_to_t_form_value : forall V G T1 T2 L, {value V} -> {getGroundOf T1 G} -> {getGroundOf T2 G} -> {value (cast V T1 L T2)}. 
+intros. case H2. 
+   case H3. search.  
+   case H3. search. 
+   case H3. search. 
+   case H3. search. 
+   case H3. search. 
+   case H3. search. 
+ 
+Theorem casts_ground_to_t_form_value : forall V G T L, {value V} -> {ground G} -> {getGroundOf T G} -> {value (cast V G L T)}.
+intros. case H3. search. search. search. search. search. search. 
+
+Theorem casts_ground_to_t_form_value_inverse : forall V G T L, {value V} -> {ground G} -> {getGroundOf T G} -> {value (cast V T L G)}.
+intros. case H3. search. search. search. search. search. search. 
+
+Theorem ground_of_ground_coincide : forall V T1 T2 L G1 G2, {typeOfCC (cast V G1 L T1) T2} -> {ground G1} -> {getGroundOf T1 G2} -> G1 = G2. 
+intros. case H3. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+
+
+Theorem ground_of_ground_coincide_inverse : forall V T1 T2 L G1 G2, {typeOfCC (cast V T1 L G1) T2} -> {ground G1} -> {getGroundOf T1 G2} -> G1 = G2. 
+intros. case H3. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+ case H1. case H5. case H2. case H2. search. 
+
+Theorem type_partitioning : forall T, {isType T} -> T = dyn \/ {ground T} \/  exists G, ({getGroundOf T G} /\ {different_hi T G}).
+induction on 1. intros. IsType1 : case H1. 
+search. search. search. 
+%arrow
+CasesType1 : apply IH to IsType1. case CasesType1.
+  CasesType2 : apply IH to IsType2. case CasesType2. 
+     search. 
+     case H2. search. search. search. search. search. search. search. search. 
+     case H2. search. search. search. search. search. search. 
+  CasesType2 : apply IH to IsType2. case CasesType2. 
+ 	 case H2. search. search. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. search. search. 
+  CasesType2 : apply IH to IsType2. case CasesType2. 
+ 	 case H2. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. 
+% times
+CasesType1 : apply IH to IsType1. case CasesType1.
+  CasesType2 : apply IH to IsType2. case CasesType2. 
+     search. 
+     case H2. search. search. search. search. search. search. search. search. 
+     case H2. search. search. search. search. search. search. 
+  CasesType2 : apply IH to IsType2. case CasesType2. 
+ 	 case H2. search. search. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. search. search. 
+  CasesType2 : apply IH to IsType2. case CasesType2. 
+ 	 case H2. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. 
+%sum
+CasesType1 : apply IH to IsType1. case CasesType1.
+  CasesType2 : apply IH to IsType2. case CasesType2. 
+     search. 
+     case H2. search. search. search. search. search. search. search. search. 
+     case H2. search. search. search. search. search. search. 
+  CasesType2 : apply IH to IsType2. case CasesType2. 
+ 	 case H2. search. search. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. search. search. 
+  CasesType2 : apply IH to IsType2. case CasesType2. 
+ 	 case H2. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. 
+	 case H2. search. search. search. search. search. search. 
+%list
+CasesType1 : apply IH to IsType1. case CasesType1.
+     search. 
+     case H2. search. search. search. search. search. search. search. search.
+     case H2. search. search. search. search. search. search. 
+%all
+CasesType1 : apply IH to IsType1. case CasesType1.
+     search. 
+     case H2. search. search. search. search. search. search. search. search.
+     case H2. search. search. search. search. search. search. 
+%mu
+CasesType1 : apply IH to IsType1. case CasesType1.
+     search. 
+     case H2. search. search. search. search. search. search. search. search.
+     case H2. search. search. search. search. search. search. 
+
+
+Theorem flow_implies_isType : forall T1 T2, {flow T1 T2} -> {isType T1} /\ {isType T2}.
+induction on 1. intros. case H1(keep). 
+search. search. 
+% arrow
+apply IH to H2. apply IH to H3. search. 
+%mu
+case H2. search. 
+%all, list
+apply IH to H2. search. 
+apply IH to H2. search. 
+%sum, times
+apply IH to H2. apply IH to H3. search. 
+apply IH to H2. apply IH to H3. search. 
+%bool, int, dyn
+search. search. search. 
+
+Theorem consistency_symmetry : forall T1 T2, {flow T1 T2} -> {flow T2 T1}.
+induction on 1. intros. case H1(keep). 
+search. search. 
+% arrow
+apply IH to H2. apply IH to H3. search. 
+%mu
+case H2. apply IH to H3. search. 
+%all, list
+apply IH to H2. search. 
+apply IH to H2. search. 
+%sum, times
+apply IH to H2. apply IH to H3. search. 
+apply IH to H2. apply IH to H3. search. 
+%bool, int, dyn
+search. search. search. 
+
+Theorem exludedMiddle : forall G1 G2, {ground G1} -> {ground G2} -> (G1 = G2 \/ {different G1 G2}). 
+intros Ground1 Ground2. case Ground1. 
+case Ground2. search. search. search. search. search. search. search. search. 
+case Ground2. search. search. search. search. search. search. search. search. 
+case Ground2. search. search. search. search. search. search. search. search. 
+case Ground2. search. search. search. search. search. search. search. search. 
+case Ground2. search. search. search. search. search. search. search. search. 
+case Ground2. search. search. search. search. search. search. search. search. 
+case Ground2. search. search. search. search. search. search. search. search. 
+case Ground2. search. search. search. search. search. search. search. search. 
+
+Theorem different_grounds_no_consistent : forall E T1 L T2 T, {typeOfCC (cast E T1 L T2) T} -> {ground T1} -> {ground T2} -> {different T1 T2} -> false. 
+intros TypeOf Ground1 Ground2 Different. Flow0 : case TypeOf. case Ground1. 
+%arrow 
+case Ground2. case Different. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+%mu
+case Ground2. Follow : case Flow1. case Different. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+%all
+case Ground2. Follow : case Flow1. Follow : case Flow1. case Different. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+%list
+case Ground2. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. case Different. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+%sum 
+case Ground2. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. case Different. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+%times 
+case Ground2. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. case Different. Follow : case Flow1. Follow : case Flow1. 
+%bool
+case Ground2. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. case Different. Follow : case Flow1. 
+%int
+case Ground2. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. case Different. 
+
+Theorem getGround_and_arrow : forall V T G L X1 X2, {value V} -> {flow (arrow X1 X2) T} -> {getGroundOf T G} -> ({value (cast V (arrow X1 X2) L T)} /\ {value (cast V T L (arrow X1 X2))}).
+intros Value Flow1 GetGround.
+case GetGround. search. 
+Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+
+Theorem getGround_and_bool : forall V T G L, {value V} -> {flow bool T} -> {getGroundOf T G} -> ({value (cast V bool L T)} /\ {value (cast V T L bool)}).
+intros Value Flow1 GetGround.
+case GetGround. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+
+Theorem getGround_and_int : forall V T G L, {value V} -> {flow int T} -> {getGroundOf T G} -> ({value (cast V int L T)} /\ {value (cast V T L int)}).
+intros Value Flow1 GetGround.
+case GetGround. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+
+Theorem getGround_and_times : forall V T G L X1 X2, {value V} -> {flow (times X1 X2) T} -> {getGroundOf T G} -> ({value (cast V (times X1 X2) L T)} /\ {value (cast V T L (times X1 X2))}).
+intros Value Flow1 GetGround.
+case GetGround. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. search. 
+
+Theorem getGround_and_sum : forall V T G L X1 X2, {value V} -> {flow (sum X1 X2) T} -> {getGroundOf T G} -> ({value (cast V (sum X1 X2) L T)} /\ {value (cast V T L (sum X1 X2))}).
+intros Value Flow1 GetGround.
+case GetGround. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. search. Follow : case Flow1. 
+
+Theorem getGround_and_list : forall V T G L X, {value V} -> {flow (list X) T} -> {getGroundOf T G} -> ({value (cast V (list X) L T)} /\ {value (cast V T L (list X))}).
+intros Value Flow1 GetGround.
+case GetGround. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. search. Follow : case Flow1. Follow : case Flow1.  
+
+Theorem getGround_and_all : forall V T G L R, {value V} -> {flow (all R) T} -> {getGroundOf T G} -> ({value (cast V (all R) L T)} /\ {value (cast V T L (all R))}).
+intros Value Flow1 GetGround.
+case GetGround. Follow : case Flow1. Follow : case Flow1. search. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+
+Theorem getGround_and_mu : forall V T G L R, {value V} -> {flow (mu R) T} -> {getGroundOf T G} -> ({value (cast V (mu R) L T)} /\ {value (cast V T L (mu R))}).
+intros Value Flow1 GetGround.
+case GetGround. Follow : case Flow1. search. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. Follow : case Flow1. 
+
+
+Theorem ground_consistent_type_makes_valueL : forall V T1 L T2 T G, {typeOfCC (cast V T1 L T2) T} -> {value V} -> {ground T1} -> {getGroundOf T2 G} -> {value (cast V T1 L T2)}. 
+intros TypeOf Value Ground GetGround.
+Flow0 : case TypeOf. case Ground. 
+apply getGround_and_arrow to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_mu to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_all to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_list to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_sum to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_times to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_bool to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_int to Value Flow1 GetGround with L = L. search. 
+
+Theorem ground_consistent_type_makes_valueR : forall V T1 L T2 T G, {typeOfCC (cast V T1 L T2) T} -> {value V} -> {ground T2} -> {getGroundOf T1 G} -> {value (cast V T1 L T2)}. 
+intros TypeOf Value Ground GetGround.
+FlowZero : case TypeOf. Flow1 : apply consistency_symmetry to FlowZero1. case Ground. 
+apply getGround_and_arrow to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_mu to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_all to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_list to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_sum to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_times to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_bool to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_int to Value Flow1 GetGround with L = L. search. 
+
+Theorem consistent_and_ground_makes_value : forall V T1 L T2 T G1 G2, {typeOfCC (cast V T1 L T2) T} -> {value V} -> {getGroundOf T1 G1} -> {getGroundOf T2 G2} -> {value (cast V T1 L T2)}.
+intros TypeOf Value Ground GetGround.
+Flow0 : case TypeOf. case Ground. 
+apply getGround_and_arrow to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_mu to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_all to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_list to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_sum to Value Flow1 GetGround with L = L. search. 
+apply getGround_and_times to Value Flow1 GetGround with L = L. search. 
+
+
+Theorem contains_contains_typeable : forall E1 E2 T1 T2,
+ {typeOfCC E1 T1} -> {containsError E1 (raise T2 E2)} -> {typeOfCC E2 int}. 
+induction on 1. intros Type1 Contains. Type1 : case Type1. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. 
+Contains : case Contains. apply IH to Type1 Contains. search. apply IH to Type2 Contains. search. 
+Contains : case Contains. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. apply IH to Type2 Contains. search. 
+Contains : case Contains. 
+Contains : case Contains. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. 
+Contains : case Contains. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. apply IH to Type2 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. % apply IH to Type1 Contains. search. 
+Contains : case Contains. search. apply IH to Type1 Contains. search. 
+Contains : case Contains. apply IH to Type1 Contains. search. 
+Contains : case Contains. 
+
+
+Theorem getGroundOf_does_consistent : forall T G, {getGroundOf T G} -> {isType T} -> {flow T G}. 
+intros GetGround IsType. case IsType.  
+%int, bool, dyn
+case GetGround. case GetGround. case GetGround. 
+%arrow, times, sum
+case GetGround. search. 
+case GetGround. search. 
+case GetGround. search. 
+%list 
+case GetGround. search. 
+case GetGround. search. 
+case GetGround. search. 
+
+Theorem flow_implies_isType : forall T1 T2, {flow T1 T2} -> {isType T1} /\ {isType T2}. 
+induction on 1. intros. case H1(keep). 
+search. search. 
+% arrow
+apply IH to H2. apply IH to H3. search. 
+%mu
+case H2. search. 
+%all, list
+apply IH to H2. search. 
+apply IH to H2. search. 
+%sum, times
+apply IH to H2. apply IH to H3. search. 
+apply IH to H2. apply IH to H3. search. 
+%bool, int, dyn
+search. search. search. 
+
+
+Theorem lessPrecise_type_of_a_ground_must_be_equal : forall V1 V2 G1 G2 T, 
+	{typeOfCC V1 G1} -> {typeOfCC V2 T} -> {lessPrecise V1 V2} -> {lessPreciseType G2 T} -> {ground G1} -> {ground G2} -> {different G2 G1} -> false. 
+intros Type1 Type2 Less LessType Ground1 Ground2 Different.
+Gless : apply less_precise_means_less_precise_type to Type1 Type2 Less.
+case Gless.
+ case LessType. case Different. 
+ case Ground2. 
+ case LessType. case Different. 
+ case Ground2. 
+ case Ground1. 
+ case LessType. case Ground2. case Ground1. case Ground2. case Different. 
+ case LessType. case Ground2. case Ground1. case Ground2. case Different. 
+ case LessType. case Ground2. case Ground1. case Ground2. case Different. 
+ case LessType. case Ground2. case Ground1. case Ground2. case Different. 
+ case LessType. case Ground2. case Ground1. case Ground2. case Different. 
+ case LessType. case Ground2. case Ground1. case Ground2. case Different. 
+
+
+
+Theorem less_precise_typed_ground_in_cast : forall V1 G1 L1 V2 T,
+{typeOfCC V1 G1} -> {typeOfCC V2 T} -> 
+{value V1} -> {value V2} -> {different T dyn} ->
+{lessPrecise (cast V1 G1 L1 dyn) V2} -> {ground G1} -> {lessPreciseType G1 T}.
+induction on 6.
+intros Type1 Type2 Value1 Value2 Different Less Ground. 
+case Less(keep).
+
+case Type2(keep).
+ case H2(keep). 
+ 	case Value2. case Different. 
+ 	case Value2. case Different. 
+	case Ground. 
+	case Ground. case Value2. case Different. search. 
+	case Ground. case Value2. case Different. search. 
+	case Ground. case Value2. case Different. search. 
+	case Ground. case Value2. case Different. search. 
+	case Ground. case Value2. case Different. search. 
+	case Ground. case Value2. case Different. search. 
+
+ apply type_uniqueness to Type2 H2. search. 
+
+ case Type2(keep). 
+ NewValue : case Value2.
+  % cast g to dyn
+  case Different.
+  % cast of arrow.
+  NewDifferent : assert {different (arrow T5 T4) dyn}.
+  LessToAchieve : apply IH to Type1 H5 Value1 NewValue NewDifferent H1 Ground. 
+  case LessToAchieve. search. case Ground. search. 
+  % cast of mu.
+  NewDifferent : assert {different (mu T4) dyn}.
+  LessToAchieve : apply IH to Type1 H5 Value1 NewValue NewDifferent H1 Ground. 
+  case LessToAchieve. search. case Ground. search. 
+  % cast of all.
+  NewDifferent : assert {different (all T4) dyn}.
+  LessToAchieve : apply IH to Type1 H5 Value1 NewValue NewDifferent H1 Ground. 
+  case LessToAchieve. search. case Ground. search. 
+  % cast of list.
+  NewDifferent : assert {different (list T4) dyn}.
+  LessToAchieve : apply IH to Type1 H5 Value1 NewValue NewDifferent H1 Ground. 
+  case LessToAchieve. search. case Ground. search. 
+  % cast of sum.
+  NewDifferent : assert {different (sum T5 T4) dyn}.
+  LessToAchieve : apply IH to Type1 H5 Value1 NewValue NewDifferent H1 Ground. 
+  case LessToAchieve. search. case Ground. search. 
+  % cast of times.
+  NewDifferent : assert {different (times T5 T4) dyn}.
+  LessToAchieve : apply IH to Type1 H5 Value1 NewValue NewDifferent H1 Ground. 
+  case LessToAchieve. search. case Ground. search. 
+  
+ case Value2.
+  
+Theorem less_precise_casts_ground_to_dyn : forall V1 G1 L1 V2 G2 L2,
+{typeOfCC V1 G1} -> {typeOfCC V2 G2} -> 
+{value V1} -> {value V2} -> 
+{lessPrecise (cast V1 G1 L1 dyn) (cast V2 G2 L2 dyn)} -> {ground G1} -> {ground G2} -> G1 = G2.
+intros Type1 Type2 Value1 Value2 Less Ground1 Ground2. 
+Less : case Less. 
+
+% cast both side
+case Less1.
+	%int, bool
+	 search. search. 
+	%dyn
+	 case Ground1. 
+	% all the rest
+	 case Ground1. case Ground2. search.
+	 case Ground1. case Ground2. search.
+	 case Ground1. case Ground2. search.
+	 case Ground1. case Ground2. search.
+	 case Ground1. case Ground2. search.
+	 case Ground1. case Ground2. search.
+
+% cast on right
+case Less1. case Less2. case Ground1.
+
+% cast on left
+case Less1(keep).
+Different : apply ground_different_from_dyn to Ground2. 
+ToCoincide : apply less_precise_typed_ground_in_cast to Type1 Type2 Value1 Value2 Different Less Ground1. 
+apply less_precise_grounds_coincide to Ground1 Ground2 ToCoincide.
+search. 
+
+Theorem consistent_getGrounders_give_same_ground : forall G1 G2 T1 T2, 
+{flow T1 T2} -> {getGroundOf T1 G1} -> {getGroundOf T2 G2} -> G1 = G2.
+intros Flow GetG1 GetG2.
+case GetG1. 
+ case Flow. case GetG2. case GetG2. search. 
+ case Flow. case GetG2. case GetG2. search. 
+ case Flow. case GetG2. case GetG2. search. 
+ case Flow. case GetG2. case GetG2. search. 
+ case Flow. case GetG2. case GetG2. search. 
+ case Flow. case GetG2. case GetG2. search. 
+ 
+Theorem consistency_symmetry : forall T1 T2, {flow T1 T2} -> {flow T2 T1}.
+induction on 1. intros. case H1(keep). 
+search. search. 
+% arrow
+apply IH to H2. apply IH to H3. search. 
+%mu
+case H2. apply IH to H3. search. 
+%all, list
+apply IH to H2. search. 
+apply IH to H2. search. 
+%sum, times
+apply IH to H2. apply IH to H3. search. 
+apply IH to H2. apply IH to H3. search. 
+%bool, int, dyn
+search. search. search. 
+
+Theorem subtyping_ground_coincide : forall T G1 G2, {subtype T G1} -> {ground G1} -> {getGroundOf T G2} -> G1 = G2.
+intros. case H1.
+ % int, bool, and dyn do not have ground, discharged.
+ case H3. case H3. case H3. 
+ % arrow
+ case H3. 
+  case H2. search. 
+ % times
+ case H3. 
+  case H2. search. 
+ % sums
+ case H3. 
+  case H2. search. 
+ % lists
+ case H3. 
+  case H2. search. 
+ % universal types
+ case H3. case H2. search. 
+ % recursive types
+ case H3. case H2. search. 
+ % dynamic subtype, impossible. 
+ case H2. 
+ 
+Theorem subtyping_ground_reflexive : forall G, {ground G} -> {subtype G G}.
+intros. case H1. search. search. search. search. search. search. search. search. 
+
+
+Theorem nstep_plus_one : forall E1 E2 E3, {nstep E1 E2} ->  {step E2 E3} -> {nstep E1 E3}. 
+  induction on 1. intros. case H1. search. apply IH to H4 H2. search. 
+Theorem nstep_transitivity : forall E1 E2 E3, {nstep E1 E2} -> {nstep E2 E3} -> {nstep E1 E3}. 
+  induction on 1. intros. case H1. search. apply IH to H4 H2. search. 
+
+Theorem nstep_succ : forall E1 E1', {nstep E1 E1'} -> {nstep (succ E1) (succ E1')}. 
+  induction on 1. intros. case H1. search. apply IH to H3. assert {step (succ E1) (succ E2)}. search. 
+  
+Theorem nstep_pair1 : forall E1 E1' E2, {nstep E1 E1'} -> {nstep (pair E1 E2) (pair E1' E2)}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with E2 = E2. assert {step (pair E1 E2) (pair E3 E2)}. search. 
+  
+Theorem nstep_pair2 : forall E1 E2 E2', {nstep E2 E2'} -> {value E1} -> {nstep (pair E1 E2) (pair E1 E2')}. 
+  induction on 1. intros. case H1. search. apply IH to H4 H2. assert {step (pair E1 E2) (pair E1 E3)}. search. 
+
+Theorem nstep_inl : forall E1 E1' T, {nstep E1 E1'} -> {nstep (inl T E1) (inl T E1')}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with T = T. assert {step (inl T E1) (inl T E2)}. search. 
+ 
+Theorem nstep_inr : forall E1 E1' T , {nstep E1 E1'} -> {nstep (inr T E1) (inr T E1')}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with T = T. assert {step (inr T E1) (inr T E2)}. search. 
+
+Theorem nstep_cons1 : forall E1 E1' E2 T, {nstep E1 E1'} -> {nstep (cons T E1 E2) (cons T E1' E2)}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with T = T, E2 = E2. assert {step (cons T E1 E2) (cons T E3 E2)}. search. 
+
+Theorem nstep_cons2 : forall E1 E2 E2' T, {nstep E2 E2'} -> {value E1} -> {nstep (cons T E1 E2) (cons T E1 E2')}.
+  induction on 1. intros. case H1. search. apply IH to H4 H2 with T = T. assert {step (cons T E1 E2) (cons T E1 E3)}. search. 
+  
+Theorem nstep_fold : forall E1 E1' R, {nstep E1 E1'} -> {nstep (fold E1 R) (fold E1' R)}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with R = R. assert {step (fold E1 R) (fold E2 R)}. search. 
+  
+Theorem nstep_app1 : forall E1 E1' E2, {nstep E1 E1'} -> {nstep (app E1 E2) (app E1' E2)}.
+  induction on 1. intros. case H1. search. apply IH to H3 with E2 = E2. assert {step (app E1 E2) (app E3 E2)}. search. 
+
+Theorem nstep_app2 : forall E1 E2 E2', {nstep E2 E2'} -> {value E1} -> {nstep (app E1 E2) (app E1 E2')}. 
+  induction on 1. intros. case H1. search. apply IH to H4 H2. assert {step (app E1 E2) (app E1 E3)}. search. 
+
+Theorem nstep_if1 : forall E1 E1' E2 E3, {nstep E1 E1'} -> {nstep (if E1 E2 E3) (if E1' E2 E3)}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with E2 = E2, E3 = E3. assert {step (if E1 E2 E3) (if E4 E2 E3)}. search. 
+
+Theorem nstep_pred : forall E1 E1', {nstep E1 E1'} -> {nstep (pred E1) (pred E1')}. 
+  induction on 1. intros. case H1. search. apply IH to H3. assert {step (pred E1) (pred E2)}. search. 
+
+Theorem nstep_isZero : forall E1 E1', {nstep E1 E1'} -> {nstep (isZero E1) (isZero E1')}.
+  induction on 1. intros. case H1. search. apply IH to H3. assert {step (isZero E1) (isZero E2)}. search. 
+
+Theorem nstep_fst : forall E1 E1', {nstep E1 E1'} -> {nstep (fst E1) (fst E1')}. 
+  induction on 1. intros. case H1. search. apply IH to H3. assert {step (fst E1) (fst E2)}. search. 
+
+Theorem nstep_snd : forall E1 E1', {nstep E1 E1'} -> {nstep (snd E1) (snd E1')}. 
+  induction on 1. intros. case H1. search. apply IH to H3. assert {step (snd E1) (snd E2)}. search. 
+
+Theorem nstep_case : forall E1 E1' E2 E3, {nstep E1 E1'} -> {nstep (case E1 E2 E3) (case E1' E2 E3)}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with E2 = E2, E3 = E3. assert {step (case E1 E2 E3) (case E4 E2 E3)}. search. 
+
+Theorem nstep_head : forall E2 E2' T, {nstep E2 E2'} -> {nstep (head T E2) (head T E2')}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with T = T. assert {step (head T E2) (head T E1)}. search. 
+
+Theorem nstep_tail : forall E2 E2' T, {nstep E2 E2'} -> {nstep (tail T E2) (tail T E2')}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with T = T. assert {step (tail T E2) (tail T E1)}. search. 
+
+Theorem nstep_isnil : forall E2 E2' T, {nstep E2 E2'} -> {nstep (isnil T E2) (isnil T E2')}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with T = T. assert {step (isnil T E2) (isnil T E1)}. search. 
+
+Theorem nstep_appT : forall E1 E1' T, {nstep E1 E1'} -> {nstep (appT E1 T) (appT E1' T)}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with T = T. assert {step (appT E1 T) (appT E2 T)}. search. 
+
+Theorem nstep_unfold : forall E1 E1', {nstep E1 E1'} -> {nstep (unfold E1) (unfold E1')}. 
+  induction on 1. intros. case H1. search. apply IH to H3. assert {step (unfold E1) (unfold E2)}. search. 
+
+Theorem nstep_let : forall E1 E1' E2, {nstep E1 E1'} -> {nstep (let E1 E2) (let E1' E2)}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with E2 = E2. assert {step (let E1 E2) (let E3 E2)}. search. 
+  
+Theorem nstep_fix : forall E1 E1', {nstep E1 E1'} -> {nstep (fix E1) (fix E1')}.
+  induction on 1. intros. case H1. search. apply IH to H3. assert {step (fix E1) (fix E2)}. search. 
+
+Theorem nstep_try : forall E1 E1' E2, {nstep E1 E1'} -> {nstep (try E1 E2) (try E1' E2)}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with E2 = E2. assert {step (try E1 E2) (try E3 E2)}. search. 
+
+Theorem nstep_raise : forall E1 E1' T, {nstep E1 E1'} -> {nstep (raise T E1) (raise T E1')}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with T = T. assert {step (raise T E1) (raise T E2)}. search. 
+
+Theorem nstep_cast : forall E1 E1' T1 L T2, {nstep E1 E1'} -> {nstep (cast E1 T1 L T2) (cast E1' T1 L T2)}. 
+  induction on 1. intros. case H1. search. apply IH to H3 with T1 = T1, L = L, T2 = T2.  assert {step (cast E1 T1 L T2) (cast E2 T1 L T2)}. search. 
+  
+  

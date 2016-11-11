@@ -1,0 +1,105 @@
+Specification "gradual_fpl".
+
+Import "auxiliary".
+Import "type_uniqueness".
+
+Theorem preservation_stepC : forall Exp Exp' Typ, {typeOfCC Exp Typ} -> {stepC Exp Exp'} -> {typeOfCC Exp' Typ}.
+induction on 2. intros TypeOf Main. 
+Step : case Main.
+ case TypeOf. search. 
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ case TypeOf. search. 
+ Flow0 : case TypeOf. IsTypeT : apply flow_implies_isType to Flow1. Flow2 : apply getGroundOf_does_consistent to Step1 IsTypeT. apply flow_implies_isType to Flow2. search. 
+ Flow0 : case TypeOf. IsTypeT : apply flow_implies_isType to Flow1. Flow2 : apply getGroundOf_does_consistent to Step1 IsTypeT1. apply flow_implies_isType to Flow2. apply consistency_symmetry to Flow2. search. 
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). Flow : case Arg2_2. apply consistency_symmetry to Flow. search.  
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). case Arg2_2. search. 
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). case Arg2_2. search. 
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). case Arg2_2. 
+	 Cast1 : assert {typeOfCC n1 T1' |- typeOfCC (cast n1 T1' L T4) T4}.
+	 Cut1 : inst Arg1_2 with n1 = (cast n1 T1' L T4).
+	 cut Cut1 with Cast1.
+	 Cast2 : assert {typeOfCC n1 T2' |- typeOfCC (cast n1 T2' L T3) T3}.
+	 Cut2 : inst Arg1_3 with n1 = (cast n1 T2' L T3).
+	 cut Cut2 with Cast2.
+     search.  
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). case Arg2_2. search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). case Arg2_2. search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). All : case Arg2_2. inst All with n1 = T. search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). Mu : case Arg2_2(keep). Mu1 : inst Mu with n1 = (mu R'). Cut : inst Mu1 with n2 = (mu R1). 
+ % cut Cut with Arg2_2. this was in when flow my was hypothetical. 
+ case Cut. % this must be here if you keep the flowAbs.
+ search. 
+
+ 
+Theorem preservation : forall Exp Exp' Typ, {typeOfCC Exp Typ} -> {step Exp Exp'} -> {typeOfCC Exp' Typ}.
+induction on 2. intros TypeOf Main. Step : case Main.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). inst Arg2_1 with n1 = T. search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). ToCut : inst Arg1_2 with n1 = E1. cut ToCut with Arg2_1. search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). ToCut : inst Arg1_3 with n1 = E1. cut ToCut with Arg2_1. search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). ToCut : inst Arg2_1 with n1 = V. cut ToCut with Arg1_2. search.
+ Arg1_1 : case TypeOf(keep). ToCut : inst Arg1_2 with n1 = V. cut ToCut with Arg1_1. search.
+ Arg1_1 : case TypeOf(keep). Cutting : assert ({typeOfCC (fix (abs T1 R1)) T1}). ToCut : inst Arg1_2 with n1 = (fix (abs T1 R1)). cut ToCut with Cutting.
+ search.
+ Arg1_1 : case TypeOf(keep). search.
+ Arg1_1 : case TypeOf(keep). search.
+ Arg1_1 : case TypeOf(keep). Arg2_1 : case Arg1_1(keep). search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf2 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf2 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf2 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ % error trigger.
+ apply type_uniqueness to Step TypeOf. apply contains_contains_typeable to Step Step1. search. 
+ % cast
+ TypeOf1 : case TypeOf. apply IH to TypeOf1 Step. search.
+ % stepC
+ apply preservation_stepC to TypeOf Step. search. 
+ % blame
+ apply type_uniqueness to Step TypeOf. search. 
+ 
+%Theorem type_soundness : forall E E' T, {typeOfCC E T} -> {nstep E E'} -> progresses E'. 
+%induction on 2. intros Main NStep. Step1 : case NStep. 
+%backchain progress. 
+%TypeOfE2: apply preservation to Main Step1. backchain IH with E = E2.
+
+
+Theorem preservation_nstep : forall Exp Exp' Typ, {typeOfCC Exp Typ} -> {nstep Exp Exp'} -> {typeOfCC Exp' Typ}. 
+induction on 2. intros. case H2. search. 
+apply preservation to H1 H3. apply IH to H5 H4. search. 
+ 

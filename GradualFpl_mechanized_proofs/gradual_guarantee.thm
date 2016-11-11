@@ -1,0 +1,1543 @@
+
+Specification "gradual_fpl".
+
+Import "auxiliary".
+Import "type_uniqueness".
+Import "preservation".
+Import "catchup_theorems".
+Import "unwrapping".
+	 
+
+Theorem simulation_of_app : 
+forall T R Arg1 Arg2 T1 T2 T3 T4 V,
+ 	{typeOfCC (abs T R) (arrow T1 T2)} -> 
+	{value (abs T R)} ->
+ 	{typeOfCC Arg1 T1} -> 
+	{value Arg1} ->
+ 	{typeOfCC V (arrow T3 T4)} -> 
+	{value V} ->
+ 	{typeOfCC Arg2 T3} -> 
+	{value Arg2} ->
+ 	{lessPrecise V (abs T R)} ->
+ 	{lessPreciseType (arrow T3 T4) (arrow T1 T2)} ->
+ 	{lessPrecise Arg2 Arg1} ->
+ 		exists V', {nstep (app V Arg2) V'} /\ {lessPrecise V' (R Arg1)} /\ {typeOfCC V' T4}.
+induction on 9.
+intros TypeOfE ValueE TypeOfArg1 ValueArg1 TypeOfV ValueV TypeOfArg2 ValueArg2 LessPreciseV LessPreciseType LessPreciseArgs. 
+LessPrecise1 : case LessPreciseV.
+	case TypeOfV. 
+	assert {value (abs T5 R1)}. 
+	TypingCut : inst H1 with n1 = Arg2.
+	cut TypingCut with TypeOfArg2.
+	LessInst1 : inst LessPrecise2 with n1 = Arg2.
+	LessCut : inst LessInst1 with n2 = Arg1.
+	cut LessCut with LessPreciseArgs. 
+	search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. 
+		  Flow : case TypeOfV. 
+		  apply type_uniqueness to TypeOfE LessPrecise2.
+		  FlowSmall : case Flow1(keep).
+		  apply consistency_symmetry to FlowSmall. 
+		  TypeArg2New : assert {typeOfCC (cast Arg2 T3 L2 T9) T9}. % you need first to case Flow1 and symmetry them.
+		  % case LessPrecise1. use to give case analysis on E1 for getting the form abs T R for the value. 
+		  case LessPreciseType(keep).
+		  case LessPrecise3(keep).
+		  case LessPrecise4(keep).
+		  LessPreciseArgsNew : assert {lessPrecise (cast Arg2 T3 L2 T9) Arg1}.		  
+		  ToValueArgument : apply catch_up_to_value_on_left to TypeOfArg1 ValueArg1 TypeArg2New LessPreciseArgsNew.
+		  InternalTMP : apply nstep_app2 to ToValueArgument ValueV. 
+		  PreFinalForm : apply nstep_cast to InternalTMP with T1 = T8, L = L2, T2 = T4.
+		  CastStep : assert {step (app (cast E1 (arrow T9 T8) L2 (arrow T3 T4)) Arg2) (cast (app E1 (cast Arg2 T3 L2 T9)) T8 L2 T4)}.
+		  FirstOFCompose : assert {nstep (app (cast E1 (arrow T9 T8) L2 (arrow T3 T4)) Arg2) (cast (app E1 V') T8 L2 T4)}.
+		  
+		  TypeToValueArgument : apply preservation_nstep to TypeArg2New ToValueArgument.
+	 	  NStep : apply IH to TypeOfE ValueE TypeOfArg1 ValueArg1 Flow ValueV TypeToValueArgument ToValueArgument1 LessPrecise1 LessPrecise3 ToValueArgument2.
+		  
+		  SecondCompose : apply nstep_cast to NStep with T1 = T8, L = L2, T2 = T4.
+		  apply nstep_transitivity to FirstOFCompose SecondCompose.
+		  TypeRarg1 : case LessPrecise2.
+		  Cut : inst TypeRarg1 with n1 = Arg1.
+		  cut Cut with TypeOfArg1.
+		  search. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 	 
+
+Theorem simulation_of_fst : 
+forall E1 E2 T1 T2 T3 T4 V, 
+ 	{typeOfCC (pair E1 E2) (times T1 T2)} -> 
+	{value (pair E1 E2)} ->
+ 	{typeOfCC V (times T3 T4)} -> 
+	{value V} ->
+ 	{lessPrecise V (pair E1 E2)} ->
+ 	{lessPreciseType (times T3 T4) (times T1 T2)} ->
+ 		exists V', {nstep (fst V) V'} /\ {lessPrecise V' E1} /\ {typeOfCC V' T3}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPrecise. LessPrecise1 : case LessPrecise.
+	% pair
+	case ValueV. case TypeOfV. search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV.  
+	  Flow : case TypeOfV. 
+	  apply type_uniqueness to TypeOfE LessPrecise2.
+	  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3.
+	  CastStep : assert {step (fst (cast E4 (times T8 T7) L2 (times T3 T4))) (cast (fst E4) T8 L2 T3)}.
+	  apply nstep_cast to NStep with T1 = T8, L = L2, T2 = T3.
+	  assert {nstep (fst (cast E4 (times T8 T7) L2 (times T3 T4))) (cast V' T8 L2 T3) }.
+	  case LessPrecise2. 
+	  case LessPrecise3. 
+	  case LessPrecise4. 
+	  case Flow1. % the flow for times times.
+	  ForPreservation : assert {typeOfCC (fst E4) T8}.
+	  apply preservation_nstep to ForPreservation NStep.
+	  search. % exists (cast V' T8 L2 T3). search. 
+
+Theorem simulation_of_snd : 
+forall E1 E2 T1 T2 T3 T4 V, 
+ 	{typeOfCC (pair E1 E2) (times T1 T2)} -> 
+	{value (pair E1 E2)} ->
+ 	{typeOfCC V (times T3 T4)} -> 
+	{value V} ->
+ 	{lessPrecise V (pair E1 E2)} ->
+ 	{lessPreciseType (times T3 T4) (times T1 T2)} ->
+ 		exists V', {nstep (snd V) V'} /\ {lessPrecise V' E2} /\ {typeOfCC V' T4}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPrecise. LessPrecise1 : case LessPrecise.
+	% pair
+	case ValueV. case TypeOfV. search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV.  
+		  Flow : case TypeOfV. 
+		  apply type_uniqueness to TypeOfE LessPrecise2.
+		  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3.
+		  CastStep : assert {step (snd (cast E4 (times T8 T7) L2 (times T3 T4))) (cast (snd E4) T7 L2 T4)}.
+		  apply nstep_cast to NStep with T1 = T7, L = L2, T2 = T4.
+		  assert {nstep (snd (cast E4 (times T8 T7) L2 (times T3 T4))) (cast V' T7 L2 T4) }.
+		  case LessPrecise2. 
+		  case LessPrecise3. 
+		  case LessPrecise4. 
+		  case Flow1. % the flow for times times.
+		  ForPreservation : assert {typeOfCC (snd E4) T7}.
+		  apply preservation_nstep to ForPreservation NStep.
+		  search. % exists (cast V' T8 L2 T3). search. 
+
+Theorem simulation_of_head_empty : 
+forall T T1 T2 V, 
+ 	{typeOfCC (emptyList T) (list T1)} -> 
+	{value (emptyList T)} ->
+ 	{typeOfCC V (list T2)} -> 
+	{value V} ->
+ 	{lessPrecise V (emptyList T)} ->
+ 	{lessPreciseType (list T2) (list T1)} ->
+ 		exists V', {nstep (head T2 V) V'} /\ {lessPrecise V' (raise T zero)} /\ {typeOfCC V' T2}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPrecise. LessPrecise1 : case LessPrecise.
+	case ValueV. case TypeOfV. search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 	 
+		  Flow : case TypeOfV. 
+		  apply type_uniqueness to TypeOfE LessPrecise2.
+		  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3.
+		  CastStep : assert {step (head T2 (cast E1 (list T6) L2 (list T2))) (cast (head T6 E1) T6 L2 T2)}.
+		  apply nstep_cast to NStep with T1 = T6, L = L2, T2 = T2.
+		  assert {nstep (head T2 (cast E1 (list T6) L2 (list T2))) (cast V' T6 L2 T2) }.
+		  case LessPrecise2. 
+		  case LessPrecise3. 
+		  case LessPrecise4. 
+		  case Flow1. % the flow for times times.
+		  ForPreservation : assert {typeOfCC (head T6 E1) T6}.
+		  apply preservation_nstep to ForPreservation NStep.
+		  search. % exists (cast V' T8 L2 T3). search. 	 
+	 case TypeOfV. case TypeOfV.  	
+
+Theorem simulation_of_head_cons : 
+forall E1 E2 T T1 T2 V, 
+ 	{typeOfCC (cons T E1 E2) (list T1)} -> 
+	{value (cons T E1 E2)} ->
+ 	{typeOfCC V (list T2)} -> 
+	{value V} ->
+ 	{lessPrecise V (cons T E1 E2)} ->
+ 	{lessPreciseType (list T2) (list T1)} ->
+ 		exists V', {nstep (head T2 V) V'} /\ {lessPrecise V' E1} /\ {typeOfCC V' T2}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPrecise. LessPrecise1 : case LessPrecise.
+	case ValueV. case TypeOfV. search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 	 
+		  Flow : case TypeOfV. 
+		  apply type_uniqueness to TypeOfE LessPrecise2.
+		  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3.
+		  CastStep : assert {step (head T2 (cast E4 (list T6) L2 (list T2))) (cast (head T6 E4) T6 L2 T2)}.
+		  apply nstep_cast to NStep with T1 = T6, L = L2, T2 = T2.
+		  assert {nstep (head T2 (cast E4 (list T6) L2 (list T2))) (cast V' T6 L2 T2) }.
+		  case LessPrecise2. 
+		  case LessPrecise3. 
+		  case LessPrecise4. 
+		  case Flow1. % the flow for times times.
+		  ForPreservation : assert {typeOfCC (head T6 E4) T6}.
+		  apply preservation_nstep to ForPreservation NStep.
+		  search. % exists (cast V' T8 L2 T3). search. 	 
+	 case TypeOfV. case TypeOfV.  	
+
+% This is ok but it is to fix.. (emptyList T) (list T1) is silly. 
+Theorem simulation_of_tail_empty : 
+forall T T1 T2 V, 
+ 	{typeOfCC (emptyList T) (list T1)} -> 
+	{value (emptyList T)} ->
+ 	{typeOfCC V (list T2)} -> 
+	{value V} ->
+ 	{lessPrecise V (emptyList T)} ->
+ 	{lessPreciseType (list T2) (list T1)} ->
+ 		exists V', {nstep (tail T2 V) V'} /\ {lessPrecise V' (raise (list T1) (succ zero))} /\ {typeOfCC V' (list T2)}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPrecise. LessPrecise1 : case LessPrecise.
+	case ValueV. case TypeOfV. search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 	 
+		  Flow : case TypeOfV. 
+		  apply type_uniqueness to TypeOfE LessPrecise2.
+		  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3.
+		  CastStep : assert {step (tail T2 (cast E1 (list T6) L2 (list T2))) (cast (tail T6 E1) (list T6) L2 (list T2))}.
+		  apply nstep_cast to NStep with T1 = (list T6), L = L2, T2 = (list T2).
+		  assert {nstep (tail T2 (cast E1 (list T6) L2 (list T2))) (cast V' (list T6) L2 (list T2)) }.
+		  case LessPrecise2. 
+		  case LessPrecise3. 
+		  case LessPrecise4. 
+		  case Flow1. % the flow for times times.
+		  ForPreservation : assert {typeOfCC (tail T6 E1) (list T6)}.
+		  apply preservation_nstep to ForPreservation NStep.
+		  search. % exists (cast V' T8 L2 T3). search. 	 
+	 case TypeOfV. case TypeOfV.  	
+
+Theorem simulation_of_tail_cons : 
+forall E1 E2 T T1 T2 V, 
+ 	{typeOfCC (cons T E1 E2) (list T1)} -> 
+	{value (cons T E1 E2)} ->
+ 	{typeOfCC V (list T2)} -> 
+	{value V} ->
+ 	{lessPrecise V (cons T E1 E2)} ->
+ 	{lessPreciseType (list T2) (list T1)} ->
+ 		exists V', {nstep (tail T2 V) V'} /\ {lessPrecise V' E2} /\ {typeOfCC V' (list T2)}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPrecise. LessPrecise1 : case LessPrecise.
+	case ValueV. case TypeOfV. search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 	 
+		  Flow : case TypeOfV. 
+		  apply type_uniqueness to TypeOfE LessPrecise2.
+		  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3.
+		  CastStep : assert {step (tail T2 (cast E4 (list T6) L2 (list T2))) (cast (tail T6 E4) (list T6) L2 (list T2))}.
+		  apply nstep_cast to NStep with T1 = (list T6), L = L2, T2 = (list T2).
+		  assert {nstep (tail T2 (cast E4 (list T6) L2 (list T2))) (cast V' (list T6) L2 (list T2)) }.
+		  case LessPrecise2. 
+		  case LessPrecise3. 
+		  case LessPrecise4. 
+		  case Flow1. % the flow for times times.
+		  ForPreservation : assert {typeOfCC (tail T6 E4) (list T6)}.
+		  apply preservation_nstep to ForPreservation NStep.
+		  search. 
+	 case TypeOfV. case TypeOfV.  	
+
+Theorem simulation_of_isnil_empty : 
+forall T T1 T2 V, 
+ 	{typeOfCC (emptyList T) (list T1)} -> 
+	{value (emptyList T)} ->
+ 	{typeOfCC V (list T2)} -> 
+	{value V} ->
+ 	{lessPrecise V (emptyList T)} ->
+ 	{lessPreciseType (list T2) (list T1)} ->
+ 		exists V', {nstep (isnil T2 V) V'} /\ {lessPrecise V' tt} /\ {typeOfCC V' bool}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPrecise. LessPrecise1 : case LessPrecise.
+	case ValueV. case TypeOfV. search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 	 
+		  Flow : case TypeOfV. 
+		  apply type_uniqueness to TypeOfE LessPrecise2.
+		  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3.
+		  CastStep : assert {step (isnil T2 (cast E1 (list T6) L2 (list T2))) (isnil T6 E1)}.
+		  assert {nstep (isnil T2 (cast E1 (list T6) L2 (list T2))) V' }.
+		  case LessPrecise2. 
+		  case LessPrecise3. 
+		  case LessPrecise4. 
+		  case Flow1. % the flow for times times.
+		  ForPreservation : assert {typeOfCC (isnil T6 E1) (bool)}.
+		  apply preservation_nstep to ForPreservation NStep.
+		  search. % exists (cast V' T8 L2 T3). search. 	 
+	 case TypeOfV. case TypeOfV.  	
+
+Theorem simulation_of_isnil_cons : 
+forall E1 E2 T T1 T2 V, 
+ 	{typeOfCC (cons T E1 E2) (list T1)} -> 
+	{value (cons T E1 E2)} ->
+ 	{typeOfCC V (list T2)} -> 
+	{value V} ->
+ 	{lessPrecise V (cons T E1 E2)} ->
+ 	{lessPreciseType (list T2) (list T1)} ->
+ 		exists V', {nstep (isnil T2 V) V'} /\ {lessPrecise V' ff} /\ {typeOfCC V' bool}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPrecise. LessPrecise1 : case LessPrecise.
+	case ValueV. case TypeOfV. search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 	 
+		  Flow : case TypeOfV. 
+		  apply type_uniqueness to TypeOfE LessPrecise2.
+		  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3.
+		  CastStep : assert {step (isnil T2 (cast E4 (list T6) L2 (list T2))) (isnil T6 E4)}.
+		  assert {nstep (isnil T2 (cast E4 (list T6) L2 (list T2))) V' }.
+		  case LessPrecise2. 
+		  case LessPrecise3. 
+		  case LessPrecise4. 
+		  case Flow1. % the flow for times times.
+		  ForPreservation : assert {typeOfCC (isnil T6 E4) (bool)}.
+		  apply preservation_nstep to ForPreservation NStep.
+		  search.
+	 case TypeOfV. case TypeOfV.  	
+
+Theorem simulation_of_unfold : 
+forall E1 R R1 R2 V, 
+ 	{typeOfCC (fold E1 R) (mu R1)} -> 
+	{value (fold E1 R)} ->
+ 	{typeOfCC V (mu R2)} -> 
+	{value V} ->
+ 	{lessPrecise V (fold E1 R)} ->
+ 	{lessPreciseType (mu R2) (mu R1)} ->
+ 		exists V', {nstep (unfold V) V'} /\ {lessPrecise V' E1} /\ {typeOfCC V' (R2 (mu R2))}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPrecise. LessPrecise1 : case LessPrecise.
+	case ValueV. case TypeOfV. search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. 
+		  Flow : case TypeOfV. 
+		  apply type_uniqueness to TypeOfE LessPrecise2.
+		  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3.
+		  CastStep : assert {step (unfold (cast E3 (mu T3) L2 (mu R2)))(cast (unfold E3) (T3 (mu T3)) L2 (R2 (mu R2)))}.
+		  apply nstep_cast to NStep with T1 = (T3 (mu T3)), L = L2, T2 = (R2 (mu R2)).
+		  assert {nstep (unfold (cast E3 (mu T3) L2 (mu R2))) (cast V' (T3 (mu T3)) L2 (R2 (mu R2))) }.
+		  case LessPrecise2(keep). 
+		  case LessPrecise3(keep). 
+		  case LessPrecise4(keep). 
+		  case Flow1(keep). % the flow for times times.
+		  Chain1 : inst H7 with n1 = (mu T3). Chain2 : inst Chain1 with n2 = (mu R2). case Chain2(keep).
+		  ForPreservation : assert {typeOfCC (unfold E3) (T3 (mu T3))}. %assert {typeOfCC (cast V' (T3 (mu T3)) L2 (R2 (mu R2))) (R2 (mu R2))}.
+		  apply preservation_nstep to ForPreservation NStep.
+		  LessChain1 : inst H5 with n1 = (mu T3). Cut1 : inst LessChain1 with n2 = (mu R1). cut Cut1 with LessPrecise3.
+		  LessChain2 : inst H6 with n1 = (mu R2). Cut2 : inst LessChain2 with n2 = (mu R1). cut Cut2 with LessPrecise4.
+		  search.
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 	
+
+Theorem simulation_of_appT : 
+forall R R1 R2 V T1 T2, 
+ 	{typeOfCC (absT R) (all R1)} -> 
+	{value (absT R)} ->
+ 	{typeOfCC V (all R2)} -> 
+	{value V} ->
+ 	{lessPrecise V (absT R)} ->
+ 	{lessPreciseType (all R2) (all R1)} ->
+ 	{lessPreciseType T2 T1} ->
+ 		exists V', {nstep (appT V T2) V'} /\ {lessPrecise V' (R T1)} /\ {typeOfCC V' (R2 T2)}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPreciseV LessPreciseT LessPreciseArgument. LessPrecise1 : case LessPreciseV.
+	% absT
+	TypeOfE : case TypeOfE. inst TypeOfE with n1 = T1. TypeOfV : case TypeOfV. inst TypeOfV with n1 = T2.
+	Chain1 : inst LessPrecise1 with n1 = T2. 
+	Cut : inst Chain1 with n2 = T1.
+	cut Cut with LessPreciseArgument.
+	search. 
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. 
+	  Flow : case TypeOfV. 
+	  apply type_uniqueness to TypeOfE LessPrecise2.
+	  NStep : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3 LessPreciseArgument.
+	  CastStep : assert {step (appT (cast E1 (all T5) L2 (all R2)) T2) (cast (appT E1 T2) (T5 T2) L2 (R2 T2))}.
+	  apply nstep_cast to NStep with T1 = (T5 T2), L = L2, T2 = (R2 T2).
+	  assert {nstep (appT (cast E1 (all T5) L2 (all R2)) T2) (cast V' (T5 T2) L2 (R2 T2))}.
+	  TypeOfAbsT : case LessPrecise2. 
+	  CutType : inst TypeOfAbsT with n1 = T1. 
+	   Chain1 : case LessPrecise3. 
+	   Chain2 : inst Chain1 with n1 = T2. 
+	   Cut1 : inst Chain2 with n2 = T1.
+	   cut Cut1 with LessPreciseArgument.
+	   OtherChain1 : case LessPrecise4. 
+	   OtherChain2 : inst OtherChain1 with n1 = T2.
+	   Cut2 : inst OtherChain2 with n2 = T1.
+	   cut Cut2 with LessPreciseArgument.
+	  FlowToInst : case Flow1. % the flow for times times. 
+	  inst FlowToInst with n1 = T2.
+	  ForPreservation : assert {typeOfCC (appT E1 T2) (T5 T2)}.
+	  apply preservation_nstep to ForPreservation NStep.
+	  search. % exists (cast V' T8 L2 T3). search. 
+	 case TypeOfV. case TypeOfV. case TypeOfV.  
+
+Theorem simulation_of_case_inl : 
+forall E V T1 T2 T3 T4 TT, 
+ 	{typeOfCC (inl TT E) (sum T1 T2)} -> 
+	{value (inl TT E)} ->
+ 	{typeOfCC V (sum T3 T4)} -> 
+	{value V} ->
+ 	{lessPrecise V (inl TT E)} ->
+ 	{lessPreciseType (sum T3 T4) (sum T1 T2)} ->
+	forall R1 R2 R1' R2' T T', 
+	nabla x, {typeOfCC x T1 |- typeOfCC (R1 x) T} -> 
+ 	nabla x, {typeOfCC x T2 |- typeOfCC (R2 x) T} -> 
+ 	nabla x, {typeOfCC x T3 |- typeOfCC (R1' x) T'} -> 
+ 	nabla x, {typeOfCC x T4 |- typeOfCC (R2' x) T'} -> 
+ 	nabla x, nabla y, {lessPrecise x y, typeOfCC x T3 , typeOfCC y T1 |- lessPrecise (R1' x) (R1 y)} -> 
+ 	nabla x, nabla y, {lessPrecise x y, typeOfCC x T4 , typeOfCC y T2 |- lessPrecise (R2' x) (R2 y)} -> 
+ 	{lessPreciseType T' T} -> 
+ 		exists V', {nstep (case V R1' R2') V'} /\ {lessPrecise V' (R1 E)} /\ {typeOfCC V' T'}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPreciseV LessPreciseT TypeR1 TypeR2 TypeR11 TypeR22 LessPreciseR1 LessPreciseR2 LessPrecisesTTprime. 
+LessPrecise1 : case LessPreciseV.
+	% inl
+	TypeOfE : case TypeOfE. 
+	TypeOfV : case TypeOfV. 
+	case ValueE. case ValueV. 
+	
+	Chain : inst LessPreciseR1 with n1 = E1.
+	CutFirst : inst Chain with n2 = E.
+	Cut : cut CutFirst with LessPrecise1.
+	Cut2 : cut Cut with TypeOfE.
+	cut Cut2 with TypeOfV.
+	
+	Cut3 : inst TypeR11 with n1 = E1.
+	cut Cut3 with TypeOfV.
+	search. 
+
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 
+	  Flow : case TypeOfV(keep). 
+	  case Flow1(keep).
+	  apply type_uniqueness to TypeOfE LessPrecise2.
+	  Implications : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3. 
+	  Chain0 : apply Implications with R1 = R1, R2 = R2, R1' = (x\ (R1' (cast x T9 L2 T3))), R2' = (x\ (R2' (cast x T8 L2 T4))), T = T, T' = T'. 	  
+	  Chain1 : apply Chain0 to TypeR1.
+	  Chain2 : apply Chain1 to TypeR2.
+	  
+	  Cast1 : assert {typeOfCC n1 T9 |- typeOfCC (cast n1 T9 L2 T3) T3}.
+	  Cut1 : inst TypeR11 with n1 = (cast n1 T9 L2 T3).
+	  TypeR1Prime : cut Cut1 with Cast1. 
+	  Chain3 : apply Chain2 to TypeR1Prime.
+	  
+	  Cast2 : assert {typeOfCC n1 T8 |- typeOfCC (cast n1 T8 L2 T4) T4}.
+	  Cut2 : inst TypeR22 with n1 = (cast n1 T8 L2 T4).
+	  TypeR2Prime : cut Cut2 with Cast2. 
+	  Chain4 : apply Chain3 to TypeR2Prime.
+
+	  Less1 : assert {lessPrecise n1 n2, typeOfCC n1 T9, typeOfCC n2 T1, lessPreciseType T9 T1, lessPreciseType T3 T1 |- lessPrecise (cast n1 T9 L2 T3) n2}.
+	  TmpLess1 : case LessPrecise2(keep).
+	  TmpLess2 : case LessPrecise3(keep).
+	  TmpLess3 : case LessPrecise4(keep).
+	  Less2 : cut Less1 with TmpLess2. 
+	  Less3 : cut Less2 with TmpLess4. 
+	  Tmp1 : inst LessPreciseR1 with n1 = (cast n1 T9 L2 T3).
+	  Tmp2 : inst Tmp1 with n2 = n2.
+	  Tmp3 : cut Tmp2 with Less3.
+	  LessR1Prime : cut Tmp3 with Cast1.
+	  Chain5 : apply Chain4 to LessR1Prime.
+
+	  LessSecond : assert {lessPrecise n1 n2, typeOfCC n1 T8, typeOfCC n2 T2, lessPreciseType T8 T2, lessPreciseType T4 T2 |- lessPrecise (cast n1 T8 L2 T4) n2}.
+	  LessSecond2 : cut LessSecond with TmpLess3. 
+	  LessSecond3 : cut LessSecond2 with TmpLess5. 
+	  TmpSecond1 : inst LessPreciseR2 with n1 = (cast n1 T8 L2 T4).
+	  TmpSecond2 : inst TmpSecond1 with n2 = n2.
+	  TmpSecond3 : cut TmpSecond2 with LessSecond3.
+	  LessR2Prime : cut TmpSecond3 with Cast2.
+	  Chain6 : apply Chain5 to LessR2Prime LessPrecisesTTprime.
+ 	  CastStep : assert {step (case (cast E1 (sum T9 T8) L2 (sum T3 T4)) R1' R2') (case E1 (x\R1' (cast x T9 L2 T3))
+                (x\R2' (cast x T8 L2 T4)))}.
+ 	  assert {nstep (case (cast E1 (sum T9 T8) L2 (sum T3 T4)) R1' R2') V'}.
+ 	  search. 
+ 	 case TypeOfV. 
+	  
+
+Theorem simulation_of_case_inr : 
+forall E V T1 T2 T3 T4 TT, 
+ 	{typeOfCC (inr TT E) (sum T1 T2)} -> 
+	{value (inr TT E)} ->
+ 	{typeOfCC V (sum T3 T4)} -> 
+	{value V} ->
+ 	{lessPrecise V (inr TT E)} ->
+ 	{lessPreciseType (sum T3 T4) (sum T1 T2)} ->
+	forall R1 R2 R1' R2' T T', 
+	nabla x, {typeOfCC x T1 |- typeOfCC (R1 x) T} -> 
+ 	nabla x, {typeOfCC x T2 |- typeOfCC (R2 x) T} -> 
+ 	nabla x, {typeOfCC x T3 |- typeOfCC (R1' x) T'} -> 
+ 	nabla x, {typeOfCC x T4 |- typeOfCC (R2' x) T'} -> 
+ 	nabla x, nabla y, {lessPrecise x y, typeOfCC x T3 , typeOfCC y T1 |- lessPrecise (R1' x) (R1 y)} -> 
+ 	nabla x, nabla y, {lessPrecise x y, typeOfCC x T4 , typeOfCC y T2 |- lessPrecise (R2' x) (R2 y)} -> 
+ 	{lessPreciseType T' T} -> 
+ 		exists V', {nstep (case V R1' R2') V'} /\ {lessPrecise V' (R2 E)} /\ {typeOfCC V' T'}.
+induction on 5.
+intros TypeOfE ValueE TypeOfV ValueV LessPreciseV LessPreciseT TypeR1 TypeR2 TypeR11 TypeR22 LessPreciseR1 LessPreciseR2 LessPrecisesTTprime. 
+LessPrecise1 : case LessPreciseV.
+	% inr
+	TypeOfE : case TypeOfE. 
+	TypeOfV : case TypeOfV. 
+	case ValueE. case ValueV. 
+	
+	Chain : inst LessPreciseR2 with n1 = E1.
+	CutFirst : inst Chain with n2 = E.
+	Cut : cut CutFirst with LessPrecise1.
+	Cut2 : cut Cut with TypeOfE.
+	cut Cut2 with TypeOfV.
+	
+	Cut3 : inst TypeR22 with n1 = E1.
+	cut Cut3 with TypeOfV.
+	search. 
+	
+	% cast
+	ValueV : case ValueV. 
+	 case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. case TypeOfV. 
+	  Flow : case TypeOfV(keep). 
+	  case Flow1(keep).
+	  apply type_uniqueness to TypeOfE LessPrecise2.
+	  Implications : apply IH to TypeOfE ValueE Flow ValueV LessPrecise1 LessPrecise3. 
+	  Chain0 : apply Implications with R1 = R1, R2 = R2, R1' = (x\ (R1' (cast x T9 L2 T3))), R2' = (x\ (R2' (cast x T8 L2 T4))), T = T, T' = T'. 	  
+	  Chain1 : apply Chain0 to TypeR1.
+	  Chain2 : apply Chain1 to TypeR2.
+	  
+	  Cast1 : assert {typeOfCC n1 T9 |- typeOfCC (cast n1 T9 L2 T3) T3}.
+	  Cut1 : inst TypeR11 with n1 = (cast n1 T9 L2 T3).
+	  TypeR1Prime : cut Cut1 with Cast1. 
+	  Chain3 : apply Chain2 to TypeR1Prime.
+	  
+	  Cast2 : assert {typeOfCC n1 T8 |- typeOfCC (cast n1 T8 L2 T4) T4}.
+	  Cut2 : inst TypeR22 with n1 = (cast n1 T8 L2 T4).
+	  TypeR2Prime : cut Cut2 with Cast2. 
+	  Chain4 : apply Chain3 to TypeR2Prime.
+
+	  Less1 : assert {lessPrecise n1 n2, typeOfCC n1 T9, typeOfCC n2 T1, lessPreciseType T9 T1, lessPreciseType T3 T1 |- lessPrecise (cast n1 T9 L2 T3) n2}.
+	  TmpLess1 : case LessPrecise2(keep).
+	  TmpLess2 : case LessPrecise3(keep).
+	  TmpLess3 : case LessPrecise4(keep).
+	  Less2 : cut Less1 with TmpLess2. 
+	  Less3 : cut Less2 with TmpLess4. 
+	  Tmp1 : inst LessPreciseR1 with n1 = (cast n1 T9 L2 T3).
+	  Tmp2 : inst Tmp1 with n2 = n2.
+	  Tmp3 : cut Tmp2 with Less3.
+	  LessR1Prime : cut Tmp3 with Cast1.
+	  Chain5 : apply Chain4 to LessR1Prime.
+
+	  LessSecond : assert {lessPrecise n1 n2, typeOfCC n1 T8, typeOfCC n2 T2, lessPreciseType T8 T2, lessPreciseType T4 T2 |- lessPrecise (cast n1 T8 L2 T4) n2}.
+	  LessSecond2 : cut LessSecond with TmpLess3. 
+	  LessSecond3 : cut LessSecond2 with TmpLess5. 
+	  TmpSecond1 : inst LessPreciseR2 with n1 = (cast n1 T8 L2 T4).
+	  TmpSecond2 : inst TmpSecond1 with n2 = n2.
+	  TmpSecond3 : cut TmpSecond2 with LessSecond3.
+	  LessR2Prime : cut TmpSecond3 with Cast2.
+	  Chain6 : apply Chain5 to LessR2Prime LessPrecisesTTprime.
+ 	  CastStep : assert {step (case (cast E1 (sum T9 T8) L2 (sum T3 T4)) R1' R2') (case E1 (x\R1' (cast x T9 L2 T3))
+                (x\R2' (cast x T8 L2 T4)))}.
+ 	  assert {nstep (case (cast E1 (sum T9 T8) L2 (sum T3 T4)) R1' R2') V'}.
+ 	  search. 
+ 	 case TypeOfV. 
+
+
+
+Theorem simulation_of_more_precise : 
+	forall E1 E2 E2' T1 T2, 
+		{typeOfCC E1 T1} -> {typeOfCC E2 T2} -> 
+		{lessPrecise E1 E2} -> {step E2 E2'} -> 
+			exists E1', {nstep E1 E1'} /\ {lessPrecise E1' E2'}.
+induction on 3. intros TypeE1 TypeE2 LessPrecise Step.  
+LessPrecise : case LessPrecise. 
+% tt, ff, zero - discharged showing no transition, but it needs to go over the up-to stepc
+StepUpTo : case Step. case StepUpTo1. case StepUpTo. case StepUpTo1.
+StepUpTo : case Step. case StepUpTo1. case StepUpTo. case StepUpTo1.
+StepUpTo : case Step. case StepUpTo1. case StepUpTo. case StepUpTo1.
+% succ, 4 cases for steps, contextual, error context, stepC, to blame.
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+   fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_succ to fromIH1. search. 
+   % error context has two cases on when something is less precise of the error: 
+	   Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_succ to NewStep.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (succ E') (raise int V1)}.
+		 apply nstep_plus_one to NStep ForComposition. search. 
+   case Step. case Step. 
+   search. % first stay the same, and everything is less than blame.
+%abs
+StepUpTo : case Step. case StepUpTo1. case StepUpTo. case StepUpTo1.
+%pair
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_pair1 to fromIH1 with E2 = E3. search.  
+     fromIH1 : apply IH to TypeE3 TypeE4 LessPrecise1 Step. 
+	   NewStepFirstElement : apply catch_up_to_value_on_left to TypeE2 Step1 TypeE1 LessPrecise.  
+	   NStep : apply nstep_pair1 to NewStepFirstElement with E2 = E3.
+	   ForComposition : apply nstep_pair2 to fromIH1 NewStepFirstElement1. 
+	   apply nstep_transitivity to NStep ForComposition.
+	   search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T7 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_pair1 to NewStep with E2 = E3.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (pair E' E3) (raise (times T4 T3) V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply type_uniqueness to TypeE4 H5.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 apply less_precise_means_less_precise_type to TypeE3 TypeE4 LessPrecise1.
+		 search. 
+
+	   % error on second argument
+	   NewStepFirstElement : apply catch_up_to_value_on_left to TypeE2 Contains1 TypeE1 LessPrecise.  
+	   NStep : apply nstep_pair1 to NewStepFirstElement with E2 = E3.
+	   Contains : case Step.
+	   Error : assert {error (raise T7 V)}. 
+	   NewStep : apply catch_up_to_error_on_left to TypeE4 TypeE3 Contains Error LessPrecise1. 
+	   ForComposition : apply nstep_pair2 to NewStep NewStepFirstElement1. 
+	   apply preservation_nstep to TypeE1 NewStepFirstElement. 
+	   apply preservation_nstep to TypeE3 NewStep. 
+		 case NewStep2. case NewStep4.  
+	   ForComposition : assert {step (pair V' E') (raise (times T4 T3) V1)}.
+		 AgainCompose : apply nstep_plus_one to ForComposition ForComposition1. 
+		 apply nstep_transitivity to NStep AgainCompose.
+		 apply type_uniqueness to TypeE2 Contains2.
+		 apply type_uniqueness to TypeE4 Contains3.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 apply less_precise_means_less_precise_type to TypeE3 TypeE4 LessPrecise1.
+		 search. 
+	   
+     case Step. case Step. 
+	 search. 
+%inl
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_inl to fromIH1 with T = T. search. 
+
+	   
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T5 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_inl to NewStep with T = T.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (inl T E') (raise (sum T3 T) V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 search. 
+	   
+     case Step. case Step. 
+	 search. 
+%inr
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_inr to fromIH1 with T = T. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T5 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_inr to NewStep with T = T.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (inr T E') (raise (sum T T3) V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 search. 
+
+     case Step. case Step. 
+	 search. 
+
+%emptyList
+StepUpTo : case Step. case StepUpTo1. case StepUpTo. case StepUpTo1. 
+
+%cons
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise1 Step. apply nstep_cons1 to fromIH1 with T = T, E2 = E3. search. 
+     fromIH1 : apply IH to TypeE3 TypeE4 LessPrecise2 Step.
+	   NewStepFirstElement : apply catch_up_to_value_on_left to TypeE2 Step1 TypeE1 LessPrecise1.  
+	   NStep : apply nstep_cons1 to NewStepFirstElement with T = T, E2 = E3.
+	   ForComposition : apply nstep_cons2 to fromIH1 NewStepFirstElement1 with T = T. 
+	   apply nstep_transitivity to NStep ForComposition.
+	   search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise1. 
+		 NStep : apply nstep_cons1 to NewStep with T = T, E2 = E3.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (cons T E' E3) (raise (list T) V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply type_uniqueness to TypeE4 H5.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise1.
+		 apply less_precise_means_less_precise_type to TypeE3 TypeE4 LessPrecise2.
+		 search. 
+
+	   % error on second argument
+	   NewStepFirstElement : apply catch_up_to_value_on_left to TypeE2 Contains1 TypeE1 LessPrecise1.  
+		 NStep : apply nstep_cons1 to NewStepFirstElement with T = T, E2 = E3.
+	   Contains : case Step.
+	   Error : assert {error (raise T3 V)}. 
+	   NewStep : apply catch_up_to_error_on_left to TypeE4 TypeE3 Contains Error LessPrecise2. 
+	   ForComposition : apply nstep_cons2 to NewStep NewStepFirstElement1 with T = T. 
+	   apply preservation_nstep to TypeE1 NewStepFirstElement. 
+	   apply preservation_nstep to TypeE3 NewStep. 
+		 case NewStep2. case NewStep4.  
+	   ForComposition : assert {step (cons T V' E') (raise (list T) V1)}.
+		 AgainCompose : apply nstep_plus_one to ForComposition ForComposition1. 
+		 apply nstep_transitivity to NStep AgainCompose.
+		 apply type_uniqueness to TypeE2 Contains2.
+		 apply type_uniqueness to TypeE4 Contains3.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise1.
+		 apply less_precise_means_less_precise_type to TypeE3 TypeE4 LessPrecise2.
+		 search. 
+
+     case Step. case Step. 
+	 search. 
+
+%absT
+StepUpTo : case Step. case StepUpTo1. case StepUpTo. case StepUpTo1. 
+
+%fold
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_fold to fromIH1 with R = R. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_fold to NewStep with R = R.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (fold E' R) (raise (mu R) V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 search. 
+
+     case Step. case Step. 
+	 search. 
+%app
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+		Value : assert {value (abs T R)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_app1 to NStep with E2 = E3.
+		NStepArg : apply catch_up_to_value_on_left to TypeE4 Step TypeE3 LessPrecise1.
+		Compose : apply nstep_app2 to NStepArg NStep1.
+		FinalForm : apply nstep_transitivity to NewNStep Compose.		
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		TypeOfArg : apply preservation_nstep to TypeE3 NStepArg.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		LessPreciseTypeArg : apply less_precise_means_less_precise_type to TypeOfArg TypeE4 NStepArg2. 
+		ForComposition : apply simulation_of_app to TypeE2 Value TypeE4 Step TypeOfV NStep1 TypeOfArg NStepArg1 NStep2 LessPreciseType NStepArg2. 
+		apply nstep_transitivity to FinalForm ForComposition. 
+		search. 
+	 
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_app1 to fromIH1 with E2 = E3. search. 
+     fromIH1 : apply IH to TypeE3 TypeE4 LessPrecise1 Step.
+	   NewStepFirstElement : apply catch_up_to_value_on_left to TypeE2 Step1 TypeE1 LessPrecise.  
+	   NStep : apply nstep_app1 to NewStepFirstElement with E2 = E3.
+	   ForComposition : apply nstep_app2 to fromIH1 NewStepFirstElement1. 
+	   apply nstep_transitivity to NStep ForComposition.
+	   search. 
+	 
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T5 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_app1 to NewStep with E2 = E3.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (app E' E3) (raise T1 V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply type_uniqueness to TypeE4 H5.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 apply less_precise_means_less_precise_type to TypeE3 TypeE4 LessPrecise1.
+		 case H8. 
+		 search. 
+
+	   % error on second argument
+	   NewStepFirstElement : apply catch_up_to_value_on_left to TypeE2 Contains1 TypeE1 LessPrecise.  
+		 NStep : apply nstep_app1 to NewStepFirstElement with E2 = E3.
+	   Contains : case Step.
+	   Error : assert {error (raise T5 V)}. 
+	   NewStep : apply catch_up_to_error_on_left to TypeE4 TypeE3 Contains Error LessPrecise1. 
+	   ForComposition : apply nstep_app2 to NewStep NewStepFirstElement1. 
+	   apply preservation_nstep to TypeE1 NewStepFirstElement. 
+	   apply preservation_nstep to TypeE3 NewStep. 
+		 case NewStep2. case NewStep4.  
+	   ForComposition : assert {step (app V' E') (raise T1 V1)}.
+		 AgainCompose : apply nstep_plus_one to ForComposition ForComposition1. 
+		 apply nstep_transitivity to NStep AgainCompose.
+		 apply type_uniqueness to TypeE2 Contains2.
+		 apply type_uniqueness to TypeE4 Contains3.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 apply less_precise_means_less_precise_type to TypeE3 TypeE4 LessPrecise1.
+		 case H7. 
+		 search. 
+	      
+		ValueNake : case Step. case TypeE2(keep).
+		Value1 : assert {value (cast V (arrow T1' T2') L (arrow T4 T2))}.
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value1 TypeE1 LessPrecise.
+		Type2 : apply preservation_nstep to TypeE1 NStep. 
+		FinalStep : apply unwrapping_app to ValueNake TypeE2 Value1 Type2 NStep1 NStep2 TypeE3 TypeE4 ValueNake1 LessPrecise1.
+		NewNStep : apply nstep_app1 to NStep with E2 = E3.
+		apply nstep_transitivity to NewNStep FinalStep. 
+		search. 
+	 search. 
+%if 
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+	% tt
+		Value : assert {value tt}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_if1 to NStep with E2 = E4, E3 = E3.
+		case NStep2. 
+
+		% value can be only tt or blame because it is less precise than tt. 
+		% tt
+		  PlusOne : assert {step (if tt E4 E3) E4}.
+		  apply nstep_plus_one to NewNStep PlusOne. 
+		  search. 
+		% cast cannot be a cast to bool and be a value, discharged.
+		  TypeOfTheCast : apply preservation_nstep to TypeE1 NStep.
+		  case TypeOfTheCast. 
+		  case NStep1.
+
+	% ff
+		Value : assert {value ff}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_if1 to NStep with E2 = E4, E3 = E3.
+		case NStep2. 
+
+		% ff
+		  PlusOne : assert {step (if ff E4 E3) E3}.
+		  apply nstep_plus_one to NewNStep PlusOne. 
+		  search. 
+		% cast cannot be a cast to bool and be a value, discharged.
+		  TypeOfTheCast : apply preservation_nstep to TypeE1 NStep.
+		  case TypeOfTheCast. 
+		  case NStep1.
+
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_if1 to fromIH1 with E2 = E4, E3 = E3. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_if1 to NewStep with E2 = E4, E3 = E3.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (if E' E4 E3) (raise T1 V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply type_uniqueness to TypeE5 H5.
+		 apply type_uniqueness to TypeE6 H6.
+		 apply less_precise_means_less_precise_type to TypeE3 TypeE5 LessPrecise1.
+		 search. 
+
+     case Step. case Step. % if is not higher order, doesnt have a stepC. 
+	 search. 
+%pred
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+	% zero
+		Value : assert {value zero}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_pred to NStep.
+		case NStep2. 
+
+		% zero
+		  PlusOne : assert {step (pred zero) (raise int zero)}.
+		  apply nstep_plus_one to NewNStep PlusOne. 
+		  search. 
+		% cast cannot be a cast to bool and be a value, discharged.
+		  TypeOfTheCast : apply preservation_nstep to TypeE1 NStep.
+		  case TypeOfTheCast. 
+		  case NStep1.
+
+	% succ
+		Value : assert {value (succ E2')}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_pred to NStep.
+		case NStep2. 
+	
+		% succ E
+		  case NStep1. % first you need to get E4 is value, from (succ E4) is value. 
+		  PlusOne : assert {step (pred (succ E4)) E4}.
+		  apply nstep_plus_one to NewNStep PlusOne. 
+		  search. 
+		% cast cannot be a cast to bool and be a value, discharged.
+		  TypeOfTheCast : apply preservation_nstep to TypeE1 NStep.
+		  case TypeOfTheCast. 
+		  case NStep1.
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_pred to fromIH1. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_pred to NewStep.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (pred E') (raise int V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 search. 
+
+     case Step. case Step. % if is not higher order, doesnt have a stepC. 
+	 search. 
+%isZero
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+	% zero
+		Value : assert {value zero}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_isZero to NStep.
+		case NStep2. 
+
+		% zero
+		  PlusOne : assert {step (isZero zero) (tt)}.
+		  apply nstep_plus_one to NewNStep PlusOne. 
+		  search. 
+		% cast cannot be a cast to bool and be a value, discharged.
+		  TypeOfTheCast : apply preservation_nstep to TypeE1 NStep.
+		  case TypeOfTheCast. 
+		  case NStep1.
+
+	% succ
+		Value : assert {value (succ E)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_isZero to NStep.
+		case NStep2. 
+	
+		% succ E
+		  case NStep1. % first you need to get E4 is value, from (succ E4) is value. 
+		  PlusOne : assert {step (isZero (succ E4)) ff}.
+		  apply nstep_plus_one to NewNStep PlusOne. 
+		  search. 
+		% cast cannot be a cast to bool and be a value, discharged.
+		  TypeOfTheCast : apply preservation_nstep to TypeE1 NStep.
+		  case TypeOfTheCast. 
+		  case NStep1.
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_isZero to fromIH1. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_isZero to NewStep.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (isZero E') (raise bool V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 search. 
+
+     case Step. case Step. % if is not higher order, doesnt have a stepC. 
+	 search. 
+%fst
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+		Value : assert {value (pair E2' E4)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_fst to NStep.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_fst to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		apply nstep_transitivity to NewNStep ForComposition. 
+		search. 
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_fst to fromIH1. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T5 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_fst to NewStep.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (fst E') (raise T1 V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 case H7.
+		 search. 
+
+		ValueNake : case Step. case TypeE2(keep).
+		Value1 : assert {value (cast V (times T1' T2') L (times T2 T4))}.
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value1 TypeE1 LessPrecise.
+		Type2 : apply preservation_nstep to TypeE1 NStep. 
+		FinalStep : apply unwrapping_fst to ValueNake TypeE2 Value1 Type2 NStep1 NStep2.
+		NewNStep : apply nstep_fst to NStep.
+		apply nstep_transitivity to NewNStep FinalStep. 
+		search. 
+
+	 search. 
+%snd
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+		Value : assert {value (pair E5 E2')}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_snd to NStep.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_snd to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		ForTransitivity : apply nstep_transitivity to NewNStep ForComposition. 
+		search. 
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_snd to fromIH1. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T5 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_snd to NewStep.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (snd E') (raise T1 V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 case H7.
+		 search. 
+
+		ValueNake : case Step. case TypeE2(keep).
+		Value1 : assert {value (cast V (times T1' T2') L (times T4 T2))}.
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value1 TypeE1 LessPrecise.
+		Type2 : apply preservation_nstep to TypeE1 NStep. 
+		FinalStep : apply unwrapping_snd to ValueNake TypeE2 Value1 Type2 NStep1 NStep2.
+		NewNStep : apply nstep_snd to NStep.
+		apply nstep_transitivity to NewNStep FinalStep. 
+		search. 
+
+	 search. 
+%case
+ TypeE1 : case TypeE1(keep). TypeE2 : case TypeE2(keep). Step : case Step(keep). 
+		% inl
+		Value : assert {value (inl T E4)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE6 Value TypeE3 LessPrecise.
+		NewNStep : apply nstep_case to NStep with E2 = R1, E3 = R2.
+		TypeOfV : apply preservation_nstep to TypeE3 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE6 NStep2. 		
+%		LessPrecise1New : assert {lessPrecise n1 n2, typeOfCC n2 T6 |- lessPrecise (R1 n1) (R1' n2)}.
+%		LessPrecise2New : assert {lessPrecise n1 n2, typeOfCC n2 T5 |- lessPrecise (R2 n1) (R2' n2)}.
+		apply type_uniqueness to LessPrecise1 TypeE3.
+		apply type_uniqueness to LessPrecise2 TypeE6.
+		PreComposition : apply simulation_of_case_inl to TypeE6 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		
+		Chain0 : apply PreComposition with R1 = R1', R2 = R2', R1' = R1,  R2' = R2, T = T2, T' = T1. 
+		Chain1 : apply Chain0 to TypeE7.
+		Chain2 : apply Chain1 to TypeE8.
+		Chain3 : apply Chain2 to TypeE4.
+		Chain4 : apply Chain3 to TypeE5.
+		Chain5 : apply Chain4 to LessPrecise3.
+		% must build that T1 is less precise than T2 from the fact that those are the type of R1 n1 less R2 n2.
+		Tmp: assert {lessPrecise (case E3 R1 R2) (case (inl T E4) R1' R2')}.
+		LessPreciseOutputType : apply less_precise_means_less_precise_type to TypeE1 TypeE2 Tmp. 
+		ForComposition : apply Chain5 to LessPrecise4 LessPreciseOutputType.
+		FinalStep : apply nstep_transitivity to NewNStep ForComposition. 
+		apply preservation_nstep to TypeE1 FinalStep.
+		search. 
+
+		% inr
+		Value : assert {value (inr T E4)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE6 Value TypeE3 LessPrecise.
+		NewNStep : apply nstep_case to NStep with E2 = R1, E3 = R2.
+		TypeOfV : apply preservation_nstep to TypeE3 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE6 NStep2. 
+%		LessPrecise1New : assert {lessPrecise n1 n2, typeOfCC n2 T6 |- lessPrecise (R1 n1) (R1' n2)}.
+%		LessPrecise2New : assert {lessPrecise n1 n2, typeOfCC n2 T5 |- lessPrecise (R2 n1) (R2' n2)}.
+		apply type_uniqueness to LessPrecise1 TypeE3.
+		apply type_uniqueness to LessPrecise2 TypeE6.
+		PreComposition : apply simulation_of_case_inr to TypeE6 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		
+		Chain0 : apply PreComposition with R1 = R1', R2 = R2', R1' = R1,  R2' = R2, T = T2, T' = T1. 
+		Chain1 : apply Chain0 to TypeE7.
+		Chain2 : apply Chain1 to TypeE8.
+		Chain3 : apply Chain2 to TypeE4.
+		Chain4 : apply Chain3 to TypeE5.
+		Chain5 : apply Chain4 to LessPrecise3.
+		% must build that T1 is less precise than T2 from the fact that those are the type of R1 n1 less R2 n2.
+		Tmp: assert {lessPrecise (case E3 R1 R2) (case (inr T E4) R1' R2')}.
+		LessPreciseOutputType : apply less_precise_means_less_precise_type to TypeE1 TypeE2 Tmp. 
+		ForComposition : apply Chain5 to LessPrecise4 LessPreciseOutputType.
+		FinalStep : apply nstep_transitivity to NewNStep ForComposition. 
+		apply preservation_nstep to TypeE1 FinalStep.
+		search. 
+
+     fromIH1 : apply IH to TypeE3 TypeE6 LessPrecise Step1. 
+	 apply nstep_case to fromIH1 with E2 = R1, E3 = R2. 
+		apply type_uniqueness to LessPrecise1 TypeE3.
+		apply type_uniqueness to LessPrecise2 TypeE6.
+		apply preservation_nstep to LessPrecise1 fromIH1.
+		ForLastPreserve : assert {nstep E1' E1'1}.
+		apply preservation_nstep to LessPrecise2 ForLastPreserve.
+		search. 
+
+	   % error on first argument
+	     Contains : case Step2.
+	     Error : assert {error (raise T11 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE6 TypeE3 Contains Error LessPrecise. 
+		 NStep : apply nstep_case to NewStep with E2 = R1, E3 = R2.
+		 case NewStep2. case NewStep4. case Step1. 
+		 apply preservation_nstep to TypeE3 NewStep. 
+		 ForComposition : assert {step (case E' R1 R2) (raise T1 V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE3 LessPrecise1.
+		 apply type_uniqueness to TypeE6 LessPrecise2.
+		 apply type_uniqueness to TypeE6 H4.
+		 CTX : assert ctx (typeOfCC n1 T14 :: nil).
+		 apply type_uniq_ext to CTX H5 TypeE7.
+		 apply less_precise_means_less_precise_type to TypeE3 TypeE6 LessPrecise.
+		 case H9(keep).
+	% to have that T1 less precise of T2, I have to instanciate the n1 n2 in lessPrecise, typeOfCC and call the monotonicity.
+		 TypeRaise1 : assert {typeOfCC (raise T6 zero) T6}.
+		 TypeRaise2 : assert {typeOfCC (raise T14 zero) T14}.
+		 % apply lessPrecise_reflexivity with E = zero. NOT NEEDED.
+		 LessRaise : assert {lessPrecise (raise T6 zero) (raise T14 zero)}.
+		 TypeE4New : inst TypeE4 with n1 = (raise T6 zero).
+		 ForDerivingLessPrecise1 : cut TypeE4New with TypeRaise1.
+		 TypeE7New : inst TypeE7 with n1 = (raise T14 zero).
+		 ForDerivingLessPrecise2 : cut TypeE7New with TypeRaise2.
+		 LessPrecise3New : inst LessPrecise3 with n1 = (raise T6 zero), n2 = (raise T14 zero).
+		 Cut1 : cut LessPrecise3New with LessRaise.
+		 Cut2 : cut Cut1 with TypeRaise1.
+		 Cut3 : cut Cut2 with TypeRaise2.
+		 apply less_precise_means_less_precise_type to ForDerivingLessPrecise1 ForDerivingLessPrecise2 Cut3.
+		 search. 
+
+		ValueNake : case Step1. case TypeE2(keep).
+		Value1 : assert {value (cast V (sum T1' T2') L (sum T10 T9))}.
+		case H1(keep). 
+		apply type_uniqueness to LessPrecise1 TypeE3.
+		apply type_uniqueness to LessPrecise2 TypeE6.
+		case LessPrecise2(keep).
+		NStep : apply catch_up_to_value_on_left to LessPrecise2 Value1 TypeE3 LessPrecise.
+		Type2 : apply preservation_nstep to TypeE3 NStep. 	
+%		LessPrecise1New : assert {lessPrecise n1 n2, typeOfCC n1 T4, typeOfCC n2 T10 |- lessPrecise (R1 n1) (R1' n2)}.		
+%		LessPrecise2New : assert {lessPrecise n1 n2, typeOfCC n1 T3, typeOfCC n2 T9 |- lessPrecise (R2 n1) (R2' n2)}.
+		PreComposition : apply unwrapping_case to ValueNake H1 Value1 Type2 NStep1 NStep2.
+		
+		Chain0 : apply PreComposition with R1 = R1, R2 = R2, R1' = R1',  R2' = R2', T1 = T1, T2 = T2. 
+		Chain1 : apply Chain0 to TypeE4.
+		Chain2 : apply Chain1 to TypeE5.
+		Chain3 : apply Chain2 to H2.
+		Chain4 : apply Chain3 to H3.
+		Chain5 : apply Chain4 to LessPrecise3.
+		Chain6 : apply Chain5 to LessPrecise4.
+
+		NewNStep : apply nstep_case to NStep with E2 = R1, E3 = R2.
+		apply nstep_transitivity to NewNStep Chain6. 
+		search. 
+	 search. 
+%head
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+		Value : assert {value (emptyList T'1)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise1.
+		NewNStep : apply nstep_head to NStep with T = T1.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_head_empty to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		apply nstep_transitivity to NewNStep ForComposition. 
+		case TypeE2.
+		search. 
+
+		Value : assert {value (cons T2 E2' V2)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise1.
+		NewNStep : apply nstep_head to NStep with T = T1.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_head_cons to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		apply nstep_transitivity to NewNStep ForComposition. 
+		search. 
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise1 Step. apply nstep_head to fromIH1 with T = T. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise1. 
+		 NStep : apply nstep_head to NewStep with T = T1.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (head T1 E') (raise T1 V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise1.
+		 search. 
+
+		ValueNake : case Step. case TypeE2(keep).
+		Value1 : assert {value (cast V (list T'1) L (list T2))}.
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value1 TypeE1 LessPrecise1.
+		Type2 : apply preservation_nstep to TypeE1 NStep. 
+		FinalStep : apply unwrapping_head to ValueNake TypeE2 Value1 Type2 NStep1 NStep2.
+		NewNStep : apply nstep_head to NStep with T = T1 .
+		apply nstep_transitivity to NewNStep FinalStep. 
+		search. 
+
+	 search. 
+%tail
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+		Value : assert {value (emptyList T'1)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise1.
+		NewNStep : apply nstep_tail to NStep with T = T.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_tail_empty to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		apply nstep_transitivity to NewNStep ForComposition. 
+		search. 
+
+		Value : assert {value (cons T' V1 E2')}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise1.
+		NewNStep : apply nstep_tail to NStep with T = T.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_tail_cons to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		apply nstep_transitivity to NewNStep ForComposition. 
+		search. 
+		
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise1 Step. apply nstep_tail to fromIH1 with T = T. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise1. 
+		 NStep : apply nstep_tail to NewStep with T = T.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (tail T E') (raise (list T) V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise1.
+		 search. 
+
+		ValueNake : case Step. case TypeE2(keep).
+		Value1 : assert {value (cast V (list T'1) L (list T'))}.
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value1 TypeE1 LessPrecise1.
+		Type2 : apply preservation_nstep to TypeE1 NStep. 
+		FinalStep : apply unwrapping_tail to ValueNake TypeE2 Value1 Type2 NStep1 NStep2.
+		NewNStep : apply nstep_tail to NStep with T = T .
+		apply nstep_transitivity to NewNStep FinalStep. 
+		search. 
+
+	 search. 
+%isnil
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+		Value : assert {value (emptyList T'1)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise1.
+		NewNStep : apply nstep_isnil to NStep with T = T.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_isnil_empty to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		apply nstep_transitivity to NewNStep ForComposition. 
+		search. 
+
+		Value : assert {value (cons T' V1 V2)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise1.
+		NewNStep : apply nstep_isnil to NStep with T = T.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_isnil_cons to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		apply nstep_transitivity to NewNStep ForComposition. 
+		search. 
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise1 Step. apply nstep_isnil to fromIH1 with T = T. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise1. 
+		 NStep : apply nstep_isnil to NewStep with T = T.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (isnil T E') (raise bool V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise1.
+		 search. 
+
+		ValueNake : case Step. case TypeE2(keep).
+		Value1 : assert {value (cast V (list T'1) L (list T'))}.
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value1 TypeE1 LessPrecise1.
+		Type2 : apply preservation_nstep to TypeE1 NStep. 
+		FinalStep : apply unwrapping_isnil to ValueNake TypeE2 Value1 Type2 NStep1 NStep2.
+		NewNStep : apply nstep_isnil to NStep with T = T .
+		apply nstep_transitivity to NewNStep FinalStep. 
+		search. 
+
+	 search. 
+%appt
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+		Value : assert {value (absT R2)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_appT to NStep with T = T.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_appT to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType LessPrecise1. 
+		apply nstep_transitivity to NewNStep ForComposition. 
+		search. 
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_appT to fromIH1 with T = T. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_appT to NewStep with T = T.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (appT E' T) (raise (R T) V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 LessToDestroy : apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 LessToDestroy1 : case LessToDestroy. 
+		 LessToDestroy2 : inst LessToDestroy1 with n1 = T, n2 = T'.
+		 cut LessToDestroy2 with LessPrecise1. 
+		 search. 
+
+		ValueNake : case Step. case TypeE2(keep).
+		Value1 : assert {value (cast V (all R') L (all R1))}.
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value1 TypeE1 LessPrecise.
+		Type2 : apply preservation_nstep to TypeE1 NStep. 
+		FinalStep : apply unwrapping_appT to ValueNake TypeE2 Value1 Type2 NStep1 NStep2 LessPrecise1.
+		NewNStep : apply nstep_appT to NStep with T = T .
+		apply nstep_transitivity to NewNStep FinalStep. 
+		search. 
+
+	 search. 
+%unfold
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+		Value : assert {value (fold E2' R2)}.   
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value TypeE1 LessPrecise.
+		NewNStep : apply nstep_unfold to NStep.
+		TypeOfV : apply preservation_nstep to TypeE1 NStep.
+		LessPreciseType : apply less_precise_means_less_precise_type to TypeOfV TypeE2 NStep2. 
+		ForComposition : apply simulation_of_unfold to TypeE2 Value TypeOfV NStep1 NStep2 LessPreciseType. 
+		apply nstep_transitivity to NewNStep ForComposition. 
+		search. 
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_unfold to fromIH1. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_unfold to NewStep.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (unfold E') (raise (R (mu R)) V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 LessToDestroy : apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 LessToDestroy1 : case LessToDestroy(keep). 
+		 LessToDestroy2 : inst LessToDestroy1 with n1 = (mu R), n2 = (mu R2).
+		 cut LessToDestroy2 with LessToDestroy. 
+		 search. 
+
+		ValueNake : case Step. case TypeE2(keep).
+		Value1 : assert {value (cast V (mu R') L (mu R1))}.
+		NStep : apply catch_up_to_value_on_left to TypeE2 Value1 TypeE1 LessPrecise.
+		Type2 : apply preservation_nstep to TypeE1 NStep. 
+		FinalStep : apply unwrapping_unfold to ValueNake TypeE2 Value1 Type2 NStep1 NStep2.
+		NewNStep : apply nstep_unfold to NStep.
+		apply nstep_transitivity to NewNStep FinalStep. 
+		search. 
+
+	 search. 
+%let
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+		NStep : apply catch_up_to_value_on_left to TypeE2 Step TypeE1 LessPrecise.
+		NewNStep : apply nstep_let to NStep with E2 = R.
+		PlusOne : assert {step (let V' R) (R V')}.
+		apply nstep_plus_one to NewNStep PlusOne. 
+		LessInst1 : inst LessPrecise1 with n1 = V'. 
+		LessInst2 : inst LessInst1 with n2 = E1'. 
+		cut LessInst2 with NStep2.
+		search. 
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_let to fromIH1 with E2 = R. search. 
+
+	     Contains : case Step1.
+	     Error : assert {error (raise T5 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_let to NewStep with E2 = R.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (let E' R) (raise T1 V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 CTX : assert ctx (typeOfCC n1 T7 :: nil).
+		 apply type_uniq_ext to CTX TypeE4 H5.
+		 ToFormT1term : inst TypeE3 with n1 = E3. 
+		 ToFormT1term1 : cut ToFormT1term with TypeE1.
+		 ToFormT6term : inst TypeE4 with n1 = E1'. 
+		 ToFormT6term1 : cut ToFormT6term with TypeE2.
+		 ToForLessPrecise : inst LessPrecise1 with n1 = E3, n2 = E1'.
+		 ToForLessPrecise1 : cut ToForLessPrecise with LessPrecise.
+		 LessToDestroy : apply less_precise_means_less_precise_type to ToFormT1term1 ToFormT6term1 ToForLessPrecise1.
+		 search. 
+
+     case Step. case Step. 
+	 search. 
+%fix
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+	 
+	   NewStep : apply catch_up_to_value_on_left to TypeE2 Step TypeE1 LessPrecise. 
+	   NStep : apply nstep_fix to NewStep.
+	   PlusOne : assert {step (fix V') (app V' (fix V'))}.  
+	   apply nstep_plus_one to NStep PlusOne. search. 	 
+	 
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_fix to fromIH1. search. 
+
+	   % error on first argument
+	     Contains : case Step1.
+	     Error : assert {error (raise T3 V)}. 
+	     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+		 NStep : apply nstep_fix to NewStep.
+		 case NewStep2. case NewStep4. case Step. 
+		 apply preservation_nstep to TypeE1 NewStep. 
+		 ForComposition : assert {step (fix E') (raise T1 V1)}.
+		 apply nstep_plus_one to NStep ForComposition. 
+		 apply type_uniqueness to TypeE2 H4.
+		 LessToDestroy : apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+		 case LessToDestroy.
+		 search. 
+
+     case Step. case Step. 
+	 search. 
+%try
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+	   NewStep : apply catch_up_to_value_on_left to TypeE2 Step TypeE1 LessPrecise. 
+	   NStep : apply nstep_try to NewStep with E2 = E3.
+	   PlusOne : assert {step (try V' E3) V'}.  
+	   apply nstep_plus_one to NStep PlusOne. search. 	 
+	   
+	   TypeE2 : case TypeE2(keep).
+	   Error : assert {error (raise T2 V)}.
+	   NewStep : apply catch_up_to_exact_error_on_left to TypeE2 Error TypeE1 LessPrecise. 
+	   NStep : apply nstep_try to NewStep with E2 = E3.
+	   case NewStep1. % just to get the form of the error
+	   PlusOne : assert {step (try (raise T3 V1) E3) (app E3 V1)}.  
+	   case NewStep2.
+	   apply nstep_plus_one to NStep PlusOne. search. 
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_try to fromIH1 with E2 = E3. search. 
+	 	 
+     Contains : case Step1.
+	 
+     case Step. case Step. 
+	 search. 
+%raise
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_raise to fromIH1 with T = T1. search. 
+
+	 % raise contains raise.  	   
+     Contains : case Step1.
+	   case Step(keep). search. 
+	   
+     Error : assert {error (raise T3 V)}. 
+     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+	 case NewStep2. case NewStep4. case Step. 
+	 NStep : apply nstep_raise to NewStep with T = T1.
+	 apply preservation_nstep to TypeE1 NewStep. 
+	 ForComposition : assert {step (raise T1 E') (raise T1 V1)}.
+	 apply nstep_plus_one to NStep ForComposition. 
+	 apply type_uniqueness to TypeE2 H4.
+	 LessToDestroy : apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+	 search. 
+
+     case Step. case Step. 
+	 
+	 search. 
+%cast in both sides
+ TypeE1 : case TypeE1. TypeE2 : case TypeE2. Step : case Step. 
+
+	 % error context
+     Contains : case Step1.
+     Error : assert {error (raise T5 V)}. 
+     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+	 NStep : apply nstep_cast to NewStep with T1 = T4, L = L1, T2 = T1. 
+	 case NewStep2. case NewStep4. case Step. 
+	 apply preservation_nstep to TypeE1 NewStep. 
+	 ForComposition : assert {step (cast E' T4 L1 T1) (raise T1 V1)}.
+	 apply nstep_plus_one to NStep ForComposition. 
+	 apply type_uniqueness to TypeE2 H4.
+	 LessToDestroy : apply less_precise_means_less_precise_type to TypeE1 TypeE2 LessPrecise.
+	 search. 
+
+       fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. apply nstep_cast to fromIH1 with T1 = T4, L = L1, T2 = T3. search. 
+
+		 TypeWholeE1 : assert {typeOfCC (cast E3 T4 L1 T1) T1}.
+		 TypeWholeE2 : assert {typeOfCC (cast E1' T1' L2 T2) T2}.
+		 LessPreciseWhole : assert {lessPrecise (cast E3 T4 L1 T1) (cast E1' T1' L2 T2)}.
+		 apply unwrapping_cast_both_sides to TypeWholeE1 TypeWholeE2 LessPrecise LessPrecise1 LessPrecise2 Step.
+		 search. 
+
+	 search. 
+%cast on the left.
+	TypeE1 : case TypeE1.
+    fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. 
+	apply nstep_cast to fromIH1 with T1 = T4, L = L2, T2 = T1. 
+	NStep : assert {nstep E2 E2'}.
+	apply preservation_nstep to LessPrecise1 NStep.
+	search. 
+	
+%cast on the right.
+	TypeE2 : case TypeE2. Step : case Step. 
+	
+	 % error context
+     Contains : case Step1.
+     Error : assert {error (raise T5 V)}. 
+     NewStep : apply catch_up_to_error_on_left to TypeE2 TypeE1 Contains Error LessPrecise. 
+	 case NewStep2. case NewStep4. case Step. 
+	 apply preservation_nstep to TypeE1 NewStep. 
+	 ForComposition : assert {step E' (raise T1 V1)}.
+	 apply nstep_plus_one to NewStep ForComposition. 
+	 apply type_uniqueness to TypeE1 LessPrecise1.
+	 search. 
+
+     fromIH1 : apply IH to TypeE1 TypeE2 LessPrecise Step. 
+	 apply nstep_cast to fromIH1 with T1 = T4, L = L2, T2 = T2. 
+ 	 NStep : assert {nstep E3 E'}.
+	 apply preservation_nstep to TypeE2 NStep.
+	 apply preservation_nstep to LessPrecise1 fromIH1.
+	 search.
+	 
+	
+	 LessPreciseWhole : assert {lessPrecise E1 (cast E3 T4 L2 T2)}.
+	 TypeCast : assert {typeOfCC (cast E3 T4 L2 T2) T2}.
+	 apply type_uniqueness to TypeE1 LessPrecise1.
+	 apply unwrapping_cast_on_right to TypeE1 TypeCast LessPrecise LessPrecise2 LessPrecise3 Step.
+	 search. 
+	 
+	 search. 
+	
+%blame is less then everything. 
+	StepUpTo : case Step. case StepUpTo. case StepUpTo1. case StepUpTo. search. 
+
+	

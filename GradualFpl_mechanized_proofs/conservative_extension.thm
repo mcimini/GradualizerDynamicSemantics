@@ -1,0 +1,268 @@
+Specification "fpl_both_languages".
+
+% Direction => of conservativeness
+
+Theorem conservative_extension_soundness : forall E1 E2, {stepOriginal E1 E2} -> {step E1 E2}.
+induction on 1. intros Step. Step : case Step. 
+search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+apply IH to Step. search. 
+search. 
+
+% For direction <=, we need to speak only about static expressions, i.e. no casts, no blame, and no occurrences of the dynamic type.
+
+Define static_type : typ -> prop by 
+	static_type (int) ;
+	static_type (bool);
+	static_type (arrow T1 T2) := static_type T1 /\ static_type T2; 
+	static_type (times T1 T2) := static_type T1 /\ static_type T2; 
+	static_type (sum T1 T2) := static_type T1 /\ static_type T2; 
+	static_type (list T) := static_type T; 
+	static_type (all R) := nabla x, static_type x -> static_type (R x); 
+	static_type (mu R) := nabla x, static_type x -> static_type (R x). 
+
+Define static_exp : term -> prop by 
+static_exp tt;
+static_exp ff;
+static_exp zero;
+static_exp (succ E1) := static_exp E1;
+static_exp (abs T R) := static_type T /\ nabla x, static_exp x -> static_exp (R x);
+static_exp (pair E1 E2) := static_exp E1 /\ static_exp E2;
+static_exp (inl T E1) := static_exp E1 /\ static_type T;
+static_exp (inr T E1) := static_exp E1 /\ static_type T;
+static_exp (emptyList T) := static_type T;
+static_exp (cons T E1 E2) := static_type T /\ static_exp E1 /\ static_exp E2;
+static_exp (absT R) := nabla x, static_type x -> static_exp (R x);
+static_exp (fold E1 R) := static_exp E1 /\ nabla x, static_type x -> static_type (R x);
+static_exp (app E1 E2) := static_exp E1 /\ static_exp E2;
+static_exp (if E1 E2 E3) := static_exp E1 /\ static_exp E2 /\ static_exp E3;
+static_exp (pred E1) := static_exp E1;
+static_exp (isZero E1) := static_exp E1;
+static_exp (fst E1) := static_exp E1;
+static_exp (snd E1) := static_exp E1;
+static_exp (case E1 R1 R2) := static_exp E1 /\ nabla x, static_exp x -> static_exp (R1 x) /\ nabla x, static_exp x -> static_exp (R2 x);
+static_exp (head T E2) := static_type T /\ static_exp E2;
+static_exp (tail T E2) := static_type T /\ static_exp E2;
+static_exp (isnil T E2) := static_type T /\ static_exp E2;
+static_exp (appT E1 T) := static_exp E1 /\ static_type T;
+static_exp (unfold E1) := static_exp E1;
+static_exp (let E1 R) := static_exp E1 /\ nabla x, static_exp x -> static_exp (R x);
+static_exp (fix E1) := static_exp E1;
+static_exp (try E1 E2) := static_exp E1 /\ static_exp E2;
+static_exp (raise T E1) := static_exp E1 /\ static_type T.
+
+
+Theorem static_no_contains_blame : forall E T L, static_exp E -> {contains E (blame T L)} -> false.
+induction on 1. intros Static Contains. Static : case Static. 
+case Contains. 
+case Contains. 
+case Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. 
+Contains : case Contains. apply IH to Static Contains.  apply IH to Static1 Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. 
+Contains : case Contains. apply IH to Static1 Contains.  apply IH to Static2 Contains. 
+Contains : case Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains.  apply IH to Static1 Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static1 Contains. 
+Contains : case Contains. apply IH to Static1 Contains. 
+Contains : case Contains. apply IH to Static1 Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+Contains : case Contains. apply IH to Static Contains. 
+
+
+Theorem conservative_extension_completeness : forall E1 E2, static_exp E1 -> {step E1 E2} -> {stepOriginal E1 E2}.
+induction on 1. intros Static Step. Static : case Static. 
+Step : case Step. case Step1. case Step. case Step1.
+Step : case Step. case Step1. case Step. case Step1.
+Step : case Step. case Step1. case Step. case Step1.
+Step : case Step. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ case Step.
+ case Step1. 
+Step : case Step. 
+ apply IH to Static Step. search. 
+ apply IH to Static1 Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. 
+  apply static_no_contains_blame to Static Contains.
+  apply static_no_contains_blame to Static1 Contains.
+Step : case Step. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step.
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step.
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ case Step.
+ case Step1.
+Step : case Step. 
+ apply IH to Static1 Step. search. 
+ apply IH to Static2 Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. 
+  apply static_no_contains_blame to Static1 Contains.
+  apply static_no_contains_blame to Static2 Contains.
+Step : case Step. 
+ search. 
+ case Step. 
+ case Step1. 
+Step : case Step. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ apply IH to Static Step. search. 
+ apply IH to Static1 Step. search. 
+ search. 
+ case Step. case Static.
+ Contains: case Step1. 
+  apply static_no_contains_blame to Static Contains.
+  apply static_no_contains_blame to Static1 Contains.
+Step : case Step. 
+ search. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. case Static. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. case Static. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. case Static. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ search. 
+ apply IH to Static1 Step. search. 
+ search. 
+ case Step. case Static1. 
+ Contains: case Step1. apply static_no_contains_blame to Static1 Contains.
+Step : case Step. 
+ search. 
+ search. 
+ apply IH to Static1 Step. search. 
+ search. 
+ case Step. case Static1. 
+ Contains: case Step1. apply static_no_contains_blame to Static1 Contains.
+Step : case Step. 
+ search. 
+ search. 
+ apply IH to Static1 Step. search. 
+ search. 
+ case Step. case Static1. 
+ Contains: case Step1. apply static_no_contains_blame to Static1 Contains.
+Step : case Step. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. case Static. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. case Static. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ search. 
+ search. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.
+Step : case Step. 
+ apply IH to Static Step. search. 
+ search. 
+ case Step. 
+ Contains: case Step1. apply static_no_contains_blame to Static Contains.

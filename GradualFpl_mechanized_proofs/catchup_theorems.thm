@@ -1,0 +1,1019 @@
+
+Specification "gradual_fpl".
+
+Import "type_uniqueness".
+Import "less_precision".
+Import "auxiliary".
+Import "progress".
+Import "preservation".
+Import "nesting_theorems".
+
+Theorem catch_up_to_value_on_left : 
+	forall V E T1 T2, 
+		{typeOfCC V T1} -> {value V} -> {typeOfCC E T2} -> {lessPrecise E V} -> 
+			exists V', {nstep E V'} /\ {value V'} /\ {lessPrecise V' V}. 
+induction on 4. intros Type1 Value Type2 LessPrecise. LessPrecise : case LessPrecise. 
+% tt, ff, zero.
+search. search. search. 
+% succ
+ Type1 : case Type1. Type2 : case Type2. Value : case Value. 
+ NStep : apply IH to Type1 Value Type2 LessPrecise. apply nstep_succ to NStep. search. 
+% abs
+Type1 : case Type1. Type2 : case Type2. Value : case Value. exists (abs T R). search. 
+% pair
+Type1 : case Type1. Type2 : case Type2. Value : case Value. 
+ NStepFirst : apply IH to Type1 Value Type2 LessPrecise. ForComposition1 : apply nstep_pair1 to NStepFirst with E2 = E2. 
+ NStepSecond : apply IH to Type3 Value1 Type4 LessPrecise1. ForComposition2 : apply nstep_pair2 to NStepSecond NStepFirst1. 
+ apply nstep_transitivity to ForComposition1 ForComposition2. search. 
+% inl, inr
+Type1 : case Type1. Type2 : case Type2. Value : case Value. NStep : apply IH to Type1 Value Type2 LessPrecise. apply nstep_inl to NStep with T = T. search. 
+Type1 : case Type1. Type2 : case Type2. Value : case Value. NStep : apply IH to Type1 Value Type2 LessPrecise. apply nstep_inr to NStep with T = T. search. 
+% emptyList
+search. 
+%cons
+Type1 : case Type1. Type2 : case Type2. Value : case Value. 
+ NStepFirst : apply IH to Type1 Value Type2 LessPrecise1. ForComposition1 : apply nstep_cons1 to NStepFirst with T = T, E2 = E2. 
+ NStepSecond : apply IH to Type3 Value1 Type4 LessPrecise2. ForComposition2 : apply nstep_cons2 to NStepSecond NStepFirst1 with T = T. 
+ apply nstep_transitivity to ForComposition1 ForComposition2. search. 
+%absT
+search. 
+%fold
+ Type1 : case Type1. Type2 : case Type2. Value : case Value. 
+ NStep : apply IH to Type1 Value Type2 LessPrecise. apply nstep_fold to NStep with R = R. search. 
+%app, if, pred, isZero, fst, snd, case, head, tail, isnil, appT, unfold, let, fix, try, raise. 
+ case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. 
+%cast in both sides
+ Type1 : case Type1(keep). Type2 : case Type2(keep). Value : case Value(keep). 
+ % case Value enumerates how the cast can be a value.
+ % cast from ground to dyn.
+	 case LessPrecise2. 
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+	 apply preservation_nstep to Type5 NStepFirst. 
+	 Choice : apply lessPrecise_of_ground_is_dyn_or_ground to LessPrecise1 Value2. 
+	 Form : case Choice.
+	  % dyn
+	  case LessPrecise1. 
+	  CastStep : assert {step (cast V' dyn L1 dyn) V'}.  
+	  apply nstep_plus_one to ForComposition CastStep.
+	  search. 
+	  % ground
+	  search. 
+ % cast arrow-arrow
+	 IsType1 : apply flow_implies_isType to Type6.
+	 Form1 : apply type_partitioning to IsType1.
+	 Form2 : apply type_partitioning to IsType2.
+	 case Form1. case Form2.  
+	 % dyn dyn 
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = dyn. 
+  	 CastStep : assert {step (cast V' dyn L1 dyn) V'}.  
+	 apply preservation_nstep to Type5 NStepFirst. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+  	 search. 
+	 % dyn ground
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+	 Middle : apply exludedMiddle to H1 FromCanonical1.
+		 case Middle. 
+		 % ground
+		 	case LessPrecise2(keep). case FromCanonical1. case FromCanonical1. 
+	   	    apply nested_value_is_less_arrow to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+		    ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = (arrow dyn dyn). 	 
+		    CastStep : assert {step (cast (cast V'1 (arrow dyn dyn) L dyn) dyn L1 (arrow dyn dyn)) V'1}. 
+	  	    apply nstep_plus_one to ForComposition CastStep.
+			case ForPreservation(keep).
+			case NStepFirst1. 
+			search. 
+
+		 % different from ground. 
+		 % This case should be a contradiction because we are in dyn ground, and here it gives different from ground. 
+			 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+			 apply nested_ground_must_synch_arrow to NStepFirst1 Type3 Value1 NStepFirst2.
+			 ForContradiction : case ForPreservation. 
+			 case H2. 
+		
+	 % dyn - different from a ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+     ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = T2. 
+	 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+	 apply nested_ground_must_synch_arrow to NStepFirst1 Type3 Value1 NStepFirst2.
+	 apply nested_value_is_less_arrow to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+     CastStep : assert {step (cast (cast V'1 (arrow dyn dyn) L dyn) dyn L1 T2) (cast (cast (cast V'1 (arrow dyn dyn) L dyn) (dyn) L1 (arrow dyn dyn)) (arrow dyn dyn) L1 T2) }. 
+	 OtherStep : assert {step (cast (cast (cast V'1 (arrow dyn dyn) L dyn) dyn L1 (arrow dyn dyn)) (arrow dyn dyn) L1 T2) (cast V'1 (arrow dyn dyn) L1 T2)}.
+     ForComposition2 : apply nstep_plus_one to ForComposition CastStep.
+     apply nstep_plus_one to ForComposition2 OtherStep.
+	 search. 
+	 
+	 % ground - __ that is to choose for the second.
+	 case Form2. 
+	 % ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 search. 
+	 % ground - ground. 
+	 apply consistent_ground_coincide to Type6 H1 H2.  
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T2, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T2 L1 T2) V' }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 search. 
+	 % ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide to Type2 H1 H2 with L = L1. 
+	 apply casts_ground_to_t_form_value to NStepFirst1 H1 H2 with L = L1. 
+	 search. 
+	 
+	 % different from ground - __ that is to choose for the second.
+	 case Form2. 
+	 % different from ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T4 L1 dyn) (cast (cast V' T4 L1 G) G L1 (dyn)) }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 GroundG : apply getGround_gives_ground to H1.
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 GroundG H1 with L = L1. 
+	 LessPrecise1 : case LessPrecise1(keep). case H1. case H1. search. 
+	 % different from ground - ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide_inverse to Type2 H3 H1 with L = L1. 
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 H3 H1 with L = L1. 
+	 search. 
+	 % different from ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 case LessPrecise1(keep). case H1. case H1. 
+	 case LessPrecise2(keep). case H3. case H3. 
+	 search. 
+
+ % cast mu-mu
+	 IsType1 : apply flow_implies_isType to Type6.
+	 Form1 : apply type_partitioning to IsType1.
+	 Form2 : apply type_partitioning to IsType2.
+	 case Form1. case Form2.  
+	 % dyn dyn 
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = dyn. 
+  	 CastStep : assert {step (cast V' dyn L1 dyn) V'}.  
+	 apply preservation_nstep to Type5 NStepFirst. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+  	 search. 
+	 % dyn ground
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+	 Middle : apply exludedMiddle to H1 FromCanonical1.
+		 case Middle. 
+		 % ground
+		 	case LessPrecise2(keep). case FromCanonical1. case FromCanonical1. 
+	   	    apply nested_value_is_less_mu to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+		    ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = (mu x\dyn). 	 
+		    CastStep : assert {step (cast (cast V'1 (mu x\dyn) L dyn) dyn L1 (mu x\dyn)) V'1}. 
+	  	    apply nstep_plus_one to ForComposition CastStep.
+			case ForPreservation(keep).
+			case NStepFirst1. 
+			search. 
+
+		 % different from ground. 
+		 % This case should be a contradiction because we are in dyn ground, and here it gives different from ground. 
+			 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+			 apply nested_ground_must_synch_mu to NStepFirst1 Type3 Value1 NStepFirst2.
+			 ForContradiction : case ForPreservation. 
+			 case H2. 
+		
+	 % dyn - different from a ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+     ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = T2. 
+	 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+	 apply nested_ground_must_synch_mu to NStepFirst1 Type3 Value1 NStepFirst2.
+	 apply nested_value_is_less_mu to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+     CastStep : assert {step (cast (cast V'1 (mu x\dyn) L dyn) dyn L1 T2) (cast (cast (cast V'1 (mu x\dyn) L dyn) (dyn) L1 (mu x\dyn)) (mu x\dyn) L1 T2) }. 
+	 OtherStep : assert {step (cast (cast (cast V'1 (mu x\dyn) L dyn) dyn L1 (mu x\dyn)) (mu x\dyn) L1 T2) (cast V'1 (mu x\dyn) L1 T2)}.
+     ForComposition2 : apply nstep_plus_one to ForComposition CastStep.
+     apply nstep_plus_one to ForComposition2 OtherStep.
+	 search. 
+	 
+	 % ground - __ that is to choose for the second.
+	 case Form2. 
+	 % ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 search. 
+	 % ground - ground. 
+	 apply consistent_ground_coincide to Type6 H1 H2.  
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T2, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T2 L1 T2) V' }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 search. 
+	 % ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide to Type2 H1 H2 with L = L1. 
+	 apply casts_ground_to_t_form_value to NStepFirst1 H1 H2 with L = L1. 
+	 search. 
+	 
+	 % different from ground - __ that is to choose for the second.
+	 case Form2. 
+	 % different from ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T4 L1 dyn) (cast (cast V' T4 L1 G) G L1 (dyn)) }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 GroundG : apply getGround_gives_ground to H1.
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 GroundG H1 with L = L1. 
+	 LessPrecise1 : case LessPrecise1(keep). case H1. case H1. search. 
+	 % different from ground - ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide_inverse to Type2 H3 H1 with L = L1. 
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 H3 H1 with L = L1. 
+	 search. 
+	 % different from ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 case LessPrecise1(keep). case H1. case H1. 
+	 case LessPrecise2(keep). case H3. case H3. 
+	 search. 
+
+ % cast all-all
+	 IsType1 : apply flow_implies_isType to Type6.
+	 Form1 : apply type_partitioning to IsType1.
+	 Form2 : apply type_partitioning to IsType2.
+	 case Form1. case Form2.  
+	 % dyn dyn 
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = dyn. 
+  	 CastStep : assert {step (cast V' dyn L1 dyn) V'}.  
+	 apply preservation_nstep to Type5 NStepFirst. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+  	 search. 
+	 % dyn ground
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+	 Middle : apply exludedMiddle to H1 FromCanonical1.
+		 case Middle. 
+		 % ground
+		 	case LessPrecise2(keep). case FromCanonical1. case FromCanonical1. 
+	   	    apply nested_value_is_less_all to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+		    ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = (all x\dyn). 	 
+		    CastStep : assert {step (cast (cast V'1 (all x\dyn) L dyn) dyn L1 (all x\dyn)) V'1}. 
+	  	    apply nstep_plus_one to ForComposition CastStep.
+			case ForPreservation(keep).
+			case NStepFirst1. 
+			search. 
+
+		 % different from ground. 
+		 % This case should be a contradiction because we are in dyn ground, and here it gives different from ground. 
+			 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+			 apply nested_ground_must_synch_all to NStepFirst1 Type3 Value1 NStepFirst2.
+			 ForContradiction : case ForPreservation. 
+			 case H2. 
+		
+	 % dyn - different from a ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+     ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = T2. 
+	 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+	 apply nested_ground_must_synch_all to NStepFirst1 Type3 Value1 NStepFirst2.
+	 apply nested_value_is_less_all to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+     CastStep : assert {step (cast (cast V'1 (all x\dyn) L dyn) dyn L1 T2) (cast (cast (cast V'1 (all x\dyn) L dyn) (dyn) L1 (all x\dyn)) (all x\dyn) L1 T2) }. 
+	 OtherStep : assert {step (cast (cast (cast V'1 (all x\dyn) L dyn) dyn L1 (all x\dyn)) (all x\dyn) L1 T2) (cast V'1 (all x\dyn) L1 T2)}.
+     ForComposition2 : apply nstep_plus_one to ForComposition CastStep.
+     apply nstep_plus_one to ForComposition2 OtherStep.
+	 search. 
+	 
+	 % ground - __ that is to choose for the second.
+	 case Form2. 
+	 % ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 search. 
+	 % ground - ground. 
+	 apply consistent_ground_coincide to Type6 H1 H2.  
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T2, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T2 L1 T2) V' }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 search. 
+	 % ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide to Type2 H1 H2 with L = L1. 
+	 apply casts_ground_to_t_form_value to NStepFirst1 H1 H2 with L = L1. 
+	 search. 
+	 
+	 % different from ground - __ that is to choose for the second.
+	 case Form2. 
+	 % different from ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T4 L1 dyn) (cast (cast V' T4 L1 G) G L1 (dyn)) }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 GroundG : apply getGround_gives_ground to H1.
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 GroundG H1 with L = L1. 
+	 LessPrecise1 : case LessPrecise1(keep). case H1. case H1. search. 
+	 % different from ground - ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide_inverse to Type2 H3 H1 with L = L1. 
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 H3 H1 with L = L1. 
+	 search. 
+	 % different from ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 case LessPrecise1(keep). case H1. case H1. 
+	 case LessPrecise2(keep). case H3. case H3. 
+	 search. 
+
+ % cast list-list
+	 IsType1 : apply flow_implies_isType to Type6.
+	 Form1 : apply type_partitioning to IsType1.
+	 Form2 : apply type_partitioning to IsType2.
+	 case Form1. case Form2.  
+	 % dyn dyn 
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = dyn. 
+  	 CastStep : assert {step (cast V' dyn L1 dyn) V'}.  
+	 apply preservation_nstep to Type5 NStepFirst. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+  	 search. 
+	 % dyn ground
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+	 Middle : apply exludedMiddle to H1 FromCanonical1.
+		 case Middle. 
+		 % ground
+		 	case LessPrecise2(keep). case FromCanonical1. case FromCanonical1. 
+	   	    apply nested_value_is_less_list to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+		    ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = (list dyn). 	 
+		    CastStep : assert {step (cast (cast V'1 (list dyn) L dyn) dyn L1 (list dyn)) V'1}. 
+	  	    apply nstep_plus_one to ForComposition CastStep.
+			case ForPreservation(keep).
+			case NStepFirst1. 
+			search. 
+
+		 % different from ground. 
+		 % This case should be a contradiction because we are in dyn ground, and here it gives different from ground. 
+			 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+			 apply nested_ground_must_synch_list to NStepFirst1 Type3 Value1 NStepFirst2.
+			 ForContradiction : case ForPreservation. 
+			 case H2. 
+		
+	 % dyn - different from a ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+     ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = T2. 
+	 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+	 apply nested_ground_must_synch_list to NStepFirst1 Type3 Value1 NStepFirst2.
+	 apply nested_value_is_less_list to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+     CastStep : assert {step (cast (cast V'1 (list dyn) L dyn) dyn L1 T2) (cast (cast (cast V'1 (list dyn) L dyn) (dyn) L1 (list dyn)) (list dyn) L1 T2) }. 
+	 OtherStep : assert {step (cast (cast (cast V'1 (list dyn) L dyn) dyn L1 (list dyn)) (list dyn) L1 T2) (cast V'1 (list dyn) L1 T2)}.
+     ForComposition2 : apply nstep_plus_one to ForComposition CastStep.
+     apply nstep_plus_one to ForComposition2 OtherStep.
+	 search. 
+	 
+	 % ground - __ that is to choose for the second.
+	 case Form2. 
+	 % ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 search. 
+	 % ground - ground. 
+	 apply consistent_ground_coincide to Type6 H1 H2.  
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T2, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T2 L1 T2) V' }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 search. 
+	 % ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide to Type2 H1 H2 with L = L1. 
+	 apply casts_ground_to_t_form_value to NStepFirst1 H1 H2 with L = L1. 
+	 search. 
+	 
+	 % different from ground - __ that is to choose for the second.
+	 case Form2. 
+	 % different from ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T4 L1 dyn) (cast (cast V' T4 L1 G) G L1 (dyn)) }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 GroundG : apply getGround_gives_ground to H1.
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 GroundG H1 with L = L1. 
+	 LessPrecise1 : case LessPrecise1(keep). case H1. case H1. search. 
+	 % different from ground - ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide_inverse to Type2 H3 H1 with L = L1. 
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 H3 H1 with L = L1. 
+	 search. 
+	 % different from ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 case LessPrecise1(keep). case H1. case H1. 
+	 case LessPrecise2(keep). case H3. case H3. 
+	 search. 
+
+ % cast sum-sum
+	 IsType1 : apply flow_implies_isType to Type6.
+	 Form1 : apply type_partitioning to IsType1.
+	 Form2 : apply type_partitioning to IsType2.
+	 case Form1. case Form2.  
+	 % dyn dyn 
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = dyn. 
+  	 CastStep : assert {step (cast V' dyn L1 dyn) V'}.  
+	 apply preservation_nstep to Type5 NStepFirst. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+  	 search. 
+	 % dyn ground
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+	 Middle : apply exludedMiddle to H1 FromCanonical1.
+		 case Middle. 
+		 % ground
+		 	case LessPrecise2(keep). case FromCanonical1. case FromCanonical1. 
+	   	    apply nested_value_is_less_sum to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+		    ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = (sum dyn dyn). 	 
+		    CastStep : assert {step (cast (cast V'1 (sum dyn dyn) L dyn) dyn L1 (sum dyn dyn)) V'1}. 
+	  	    apply nstep_plus_one to ForComposition CastStep.
+			case ForPreservation(keep).
+			case NStepFirst1. 
+			search. 
+
+		 % different from ground. 
+		 % This case should be a contradiction because we are in dyn ground, and here it gives different from ground. 
+			 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+			 apply nested_ground_must_synch_sum to NStepFirst1 Type3 Value1 NStepFirst2.
+			 ForContradiction : case ForPreservation. 
+			 case H2. 
+		
+	 % dyn - different from a ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+     ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = T2. 
+	 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+	 apply nested_ground_must_synch_sum to NStepFirst1 Type3 Value1 NStepFirst2.
+	 apply nested_value_is_less_sum to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+     CastStep : assert {step (cast (cast V'1 (sum dyn dyn) L dyn) dyn L1 T2) (cast (cast (cast V'1 (sum dyn dyn) L dyn) (dyn) L1 (sum dyn dyn)) (sum dyn dyn) L1 T2) }. 
+	 OtherStep : assert {step (cast (cast (cast V'1 (sum dyn dyn) L dyn) dyn L1 (sum dyn dyn)) (sum dyn dyn) L1 T2) (cast V'1 (sum dyn dyn) L1 T2)}.
+     ForComposition2 : apply nstep_plus_one to ForComposition CastStep.
+     apply nstep_plus_one to ForComposition2 OtherStep.
+	 search. 
+	 
+	 % ground - __ that is to choose for the second.
+	 case Form2. 
+	 % ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 search. 
+	 % ground - ground. 
+	 apply consistent_ground_coincide to Type6 H1 H2.  
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T2, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T2 L1 T2) V' }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 search. 
+	 % ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide to Type2 H1 H2 with L = L1. 
+	 apply casts_ground_to_t_form_value to NStepFirst1 H1 H2 with L = L1. 
+	 search. 
+	 
+	 % different from ground - __ that is to choose for the second.
+	 case Form2. 
+	 % different from ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T4 L1 dyn) (cast (cast V' T4 L1 G) G L1 (dyn)) }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 GroundG : apply getGround_gives_ground to H1.
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 GroundG H1 with L = L1. 
+	 LessPrecise1 : case LessPrecise1(keep). case H1. case H1. search. 
+	 % different from ground - ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide_inverse to Type2 H3 H1 with L = L1. 
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 H3 H1 with L = L1. 
+	 search. 
+	 % different from ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 case LessPrecise1(keep). case H1. case H1. 
+	 case LessPrecise2(keep). case H3. case H3. 
+	 search. 
+
+ % cast times-times
+	 IsType1 : apply flow_implies_isType to Type6.
+	 Form1 : apply type_partitioning to IsType1.
+	 Form2 : apply type_partitioning to IsType2.
+	 case Form1. case Form2.  
+	 % dyn dyn 
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = dyn. 
+  	 CastStep : assert {step (cast V' dyn L1 dyn) V'}.  
+	 apply preservation_nstep to Type5 NStepFirst. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+  	 search. 
+	 % dyn ground
+	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+	 Middle : apply exludedMiddle to H1 FromCanonical1.
+		 case Middle. 
+		 % ground
+		 	case LessPrecise2(keep). case FromCanonical1. case FromCanonical1. 
+	   	    apply nested_value_is_less_times to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+		    ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = (times dyn dyn). 	 
+		    CastStep : assert {step (cast (cast V'1 (times dyn dyn) L dyn) dyn L1 (times dyn dyn)) V'1}. 
+	  	    apply nstep_plus_one to ForComposition CastStep.
+			case ForPreservation(keep).
+			case NStepFirst1. 
+			search. 
+
+		 % different from ground. 
+		 % This case should be a contradiction because we are in dyn ground, and here it gives different from ground. 
+			 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+			 apply nested_ground_must_synch_times to NStepFirst1 Type3 Value1 NStepFirst2.
+			 ForContradiction : case ForPreservation. 
+			 case H2. 
+		
+	 % dyn - different from a ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+     ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L1, T2 = T2. 
+	 LessPrecise2 : case LessPrecise2(keep). case H1. case H1. 
+	 apply nested_ground_must_synch_times to NStepFirst1 Type3 Value1 NStepFirst2.
+	 apply nested_value_is_less_times to ForPreservation NStepFirst1 NStepFirst2 Type3 Value1. 
+     CastStep : assert {step (cast (cast V'1 (times dyn dyn) L dyn) dyn L1 T2) (cast (cast (cast V'1 (times dyn dyn) L dyn) (dyn) L1 (times dyn dyn)) (times dyn dyn) L1 T2) }. 
+	 OtherStep : assert {step (cast (cast (cast V'1 (times dyn dyn) L dyn) dyn L1 (times dyn dyn)) (times dyn dyn) L1 T2) (cast V'1 (times dyn dyn) L1 T2)}.
+     ForComposition2 : apply nstep_plus_one to ForComposition CastStep.
+     apply nstep_plus_one to ForComposition2 OtherStep.
+	 search. 
+	 
+	 % ground - __ that is to choose for the second.
+	 case Form2. 
+	 % ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 search. 
+	 % ground - ground. 
+	 apply consistent_ground_coincide to Type6 H1 H2.  
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T2, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T2 L1 T2) V' }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 search. 
+	 % ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide to Type2 H1 H2 with L = L1. 
+	 apply casts_ground_to_t_form_value to NStepFirst1 H1 H2 with L = L1. 
+	 search. 
+	 
+	 % different from ground - __ that is to choose for the second.
+	 case Form2. 
+	 % different from ground - dyn. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = dyn. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+     CastStep : assert {step (cast V' T4 L1 dyn) (cast (cast V' T4 L1 G) G L1 (dyn)) }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 GroundG : apply getGround_gives_ground to H1.
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 GroundG H1 with L = L1. 
+	 LessPrecise1 : case LessPrecise1(keep). case H1. case H1. search. 
+	 % different from ground - ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 apply ground_of_ground_coincide_inverse to Type2 H3 H1 with L = L1. 
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 H3 H1 with L = L1. 
+	 search. 
+	 % different from ground - different from ground. 
+ 	 NStepFirst : apply IH to Type3 Value1 Type5 LessPrecise. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L1, T2 = T2. 
+ 	 ForPreservation : apply preservation_nstep to Type5 NStepFirst. 
+	 case LessPrecise1(keep). case H1. case H1. 
+	 case LessPrecise2(keep). case H3. case H3. 
+	 search. 
+	 
+%cast on the left.
+ Type2 : case Type2(keep).
+	 NStepFirst : apply IH to Type1 Value Type3 LessPrecise. 
+	 ForComposition : apply nstep_cast to NStepFirst with T1 = T4, L = L2, T2 = T2. 
+	 ForPreservation : apply preservation_nstep to Type3 NStepFirst. 
+	 IsType1 : apply flow_implies_isType to Type4.
+	 Form1 : apply type_partitioning to IsType1.
+	 Form2 : apply type_partitioning to IsType2.
+	 case Form1. case Form2.  
+	 % dyn dyn 
+  	 CastStep : assert {step (cast V' dyn L2 dyn) V'}.  
+  	 apply nstep_plus_one to ForComposition CastStep.
+  	 search. 
+	 % dyn ground
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+
+	 ForCall : assert {ground T2}.
+	 MagnusLessPrecise : apply nested_value_is_less_ground to ForCall ForPreservation NStepFirst1 NStepFirst2 LessPrecise1 Value LessPrecise3. 
+	 Middle : apply exludedMiddle to H1 FromCanonical1.
+		 case Middle. 
+		 % ground                    
+		    CastStep : assert {step (cast (cast V'1 G L dyn) dyn L2 G) V'1}. 
+	  	    apply nstep_plus_one to ForComposition CastStep.
+			case ForPreservation(keep).
+			case LessPrecise2(keep). case NStepFirst1. 
+			search. 
+		 % different from ground. 
+		 	case H2. 
+			
+	 % dyn - different from a ground. 
+	 FromCanonical : apply canonical_form_dyn to ForPreservation NStepFirst1.
+	 ForCall : apply H1. 
+	 MagnusLessPrecise : apply nested_value_is_less_getGround to ForCall ForPreservation NStepFirst1 NStepFirst2 LessPrecise1 Value LessPrecise3. 
+     ForComposition : apply nstep_cast to NStepFirst with T1 = dyn, L = L2, T2 = T2. 
+     CastStep : assert {step (cast (cast V'1 G L dyn) dyn L2 T2) (cast (cast (cast V'1 G L dyn) (dyn) L2 G) G L2 T2) }. 
+	 OtherStep : assert {step (cast (cast (cast V'1 G L dyn) dyn L2 G) G L2 T2) (cast V'1 G L2 T2)}.
+	 apply casts_ground_to_t_form_value to FromCanonical FromCanonical1 H1 with L = L2.
+     ForComposition2 : apply nstep_plus_one to ForComposition CastStep.
+     apply nstep_plus_one to ForComposition2 OtherStep.
+	 case ForPreservation(keep). 
+	 apply lessPreciseType_transfer_to_ground to LessPrecise3 H1. 
+	 search. 
+	 
+	 % ground - __ that is to choose for the second.
+	 case Form2. 
+	 % ground - dyn. 
+	 search. 
+	 % ground - ground. 
+	 apply consistent_ground_coincide to Type4 H1 H2.  
+     CastStep : assert {step (cast V' T2 L2 T2) V' }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 search. 
+	 % ground - different from ground. 
+	 apply ground_of_ground_coincide to Type2 H1 H2 with L = L2. 
+	 apply casts_ground_to_t_form_value to NStepFirst1 H1 H2 with L = L2. 
+	 search. 
+	 
+	 % different from ground - __ that is to choose for the second.
+	 case Form2. 
+	 % different from ground - dyn. 
+     CastStep : assert {step (cast V' T4 L2 dyn) (cast (cast V' T4 L2 G) G L2 (dyn)) }. 
+  	 apply nstep_plus_one to ForComposition CastStep.
+	 GroundG : apply getGround_gives_ground to H1.
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 GroundG H1 with L = L2. 
+	 apply type_uniqueness to Type1 LessPrecise1.
+	 apply lessPreciseType_transfer_to_ground to LessPrecise2 H1. 
+	 search. 	 	 
+	 % different from ground - ground. 
+	 apply ground_of_ground_coincide_inverse to Type2 H3 H1 with L = L2. 
+	 apply casts_ground_to_t_form_value_inverse to NStepFirst1 H3 H1 with L = L2. 
+	 search. 
+	 % different from ground - different from ground. 
+	 apply consistent_getGrounders_give_same_ground to Type4 H1 H3.
+	 apply casts_t_to_t_form_value to NStepFirst1 H1 H3 with L = L2. 
+	 search. 
+
+%cast on the right.
+ Type1 : case Type1(keep).
+	 IsType1 : apply flow_implies_isType to Type4.
+	 Form1 : apply type_partitioning to IsType1.
+	 Form2 : apply type_partitioning to IsType2.
+	 case Form1. case Form2.  
+	 % dyn dyn 
+	 Error : case Value. case Error1. 
+	 % dyn ground
+	 Error : case Value. case Error1. 
+	 % dyn - different from a ground. 
+	 Error : case Value. case Error1. 
+
+	 % ground  - ___ to choose. 
+	 case Form2.  
+	 % ground - dyn
+	 apply type_uniqueness to Type2 LessPrecise1.
+	 Value : case Value.
+	 NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	 ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	 search. 
+	 % ground - ground
+	 apply type_uniqueness to Type2 LessPrecise1.
+	 Value : case Value.
+	  % dyn 
+	  case H2. 
+	  % arrow - arrow
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % mu - mu
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % all - all
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % list - list
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % sum - sum
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % times - times
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+
+	 % ground - different from ground. 
+	 apply type_uniqueness to Type2 LessPrecise1.
+	 Value : case Value.
+	  % dyn 
+	  case H2. 
+	  % arrow - arrow
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % mu - mu
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % all - all
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % list - list
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % sum - sum
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % times - times
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	 
+	 % different from ground - ___ to choose. 
+	 case Form2.  
+	 % different from ground - dyn
+	 apply type_uniqueness to Type2 LessPrecise1.
+	 Value : case Value.
+	 NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	 ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	 search. 
+	 
+	 % different from ground - ground
+	 apply type_uniqueness to Type2 LessPrecise1.
+	 Value : case Value.
+	  % dyn 
+	  case H3. 
+	  % arrow - arrow
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % mu - mu
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % all - all
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % list - list
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % sum - sum
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % times - times
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+
+	 % different from ground - different from ground
+	 apply type_uniqueness to Type2 LessPrecise1.
+	 Value : case Value.
+	  % dyn 
+	  case H3. 
+	  % arrow - arrow
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % mu - mu
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % all - all
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % list - list
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % sum - sum
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  % times - times
+	  NStepFirst : apply IH to Type3 Value Type2 LessPrecise. 
+	  ForPreservation : apply preservation_nstep to Type2 NStepFirst. 
+	  search. 
+	  
+% blame
+case Value. 
+	 
+
+
+Theorem catch_up_to_error_on_left : 
+	forall E1 E2 T1 T2 Err1, 
+		{typeOfCC E1 T1} -> {typeOfCC E2 T2} -> {containsError E1 Err1} ->  {error Err1} -> {lessPrecise E2 E1} -> 
+			exists E' Err2, {nstep E2 E'} /\ {containsError E' Err2} /\ {error Err2} /\ {lessPrecise E' E1} /\ {lessPrecise Err2 Err1}. 
+induction on 5. intros Type1 Type2 Contains Error LessPrecise. Value : case Error(keep). LessPrecise : case LessPrecise. 
+% tt, ff, zero
+ case Contains. case Contains. case Contains. 
+% succ
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. 
+ apply nstep_succ to NStep. search. 
+% abs
+ case Contains.
+% pairs
+  NewType1 : case Type1. NewType2 : case Type2. NewContains : case Contains.
+   NStep : apply IH to NewType1 NewType3 NewContains Error LessPrecise. apply nstep_pair1 to NStep with E2 = E3. search. 
+   NStep : apply IH to NewType2 NewType4 NewContains Error LessPrecise1. 
+   ToValue : apply catch_up_to_value_on_left to NewType1 NewContains1 NewType3 LessPrecise.
+   ForComposition : apply nstep_pair1 to ToValue with E2 = E3.
+   ForComposition : apply nstep_pair2 to NStep ToValue1.
+   apply nstep_transitivity to ForComposition ForComposition1.
+   search. 
+% inl 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_inl to NStep with T = T3. search. 
+% inr
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_inr to NStep with T = T3. search. 
+% emptyList
+ case Contains.
+% cons
+  NewType1 : case Type1. NewType2 : case Type2. NewContains : case Contains.
+   NStep : apply IH to NewType1 NewType3 NewContains Error LessPrecise1. apply nstep_cons1 to NStep with T = T3, E2 = E3. search. 
+   NStep : apply IH to NewType2 NewType4 NewContains Error LessPrecise2. 
+   ToValue : apply catch_up_to_value_on_left to NewType1 NewContains1 NewType3 LessPrecise1.
+   ForComposition : apply nstep_cons1 to ToValue with T = T3, E2 = E3.
+   ForComposition : apply nstep_cons2 to NStep ToValue1 with T = T3.
+   apply nstep_transitivity to ForComposition ForComposition1.
+   search. 
+% absT
+ case Contains.
+% fold 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_fold to NStep with R = R. search. 
+% app
+  NewType1 : case Type1. NewType2 : case Type2. NewContains : case Contains.
+   NStep : apply IH to NewType1 NewType3 NewContains Error LessPrecise. apply nstep_app1 to NStep with E2 = E3. search. 
+   NStep : apply IH to NewType2 NewType4 NewContains Error LessPrecise1. 
+   ToValue : apply catch_up_to_value_on_left to NewType1 NewContains1 NewType3 LessPrecise.
+   ForComposition : apply nstep_app1 to ToValue with E2 = E3.
+   ForComposition : apply nstep_app2 to NStep ToValue1.
+   apply nstep_transitivity to ForComposition ForComposition1.
+   search. 
+% if
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType4 NewContains Error LessPrecise. apply nstep_if1 to NStep with E2 = E4, E3 = E3. search. 
+% pred 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_pred to NStep. search. 
+% isZero 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_isZero to NStep. search. 
+% fst 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_fst to NStep. search. 
+% snd 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_snd to NStep. search. 
+% case 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType4 NewContains Error LessPrecise. apply nstep_case to NStep with E2 = R1, E3 = R2.
+ apply preservation_nstep to LessPrecise1 NStep. search. 
+% head 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise1. apply nstep_head to NStep with T = T3. search. 
+% tail 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise1. apply nstep_tail to NStep with T = T3. search. 
+% isnil 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise1. apply nstep_isnil to NStep with T = T3. search. 
+% appT 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_appT to NStep with T = T3. search. 
+% unfold 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_unfold to NStep. search. 
+% let 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType3 NewContains Error LessPrecise. apply nstep_let to NStep with E2 = R. search. 
+% fix 
+ NewContains: case Contains. NewType1 : case Type1. NewType2 : case Type2. 
+ NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_fix to NStep. search. 
+% try 
+ NewContains: case Contains. %NewType1 : case Type1. NewType2 : case Type2. 
+ %NStep : apply IH to NewType1 NewType3 NewContains Error LessPrecise. apply nstep_try to NStep with E2 = E4. search. 
+% raise 
+  NewType1 : case Type1. NewType2 : case Type2. NewContains : case Contains.
+  NStep : apply catch_up_to_value_on_left to NewType1 Value NewType2 LessPrecise. apply nstep_raise to NStep with T = T2. search. 
+  NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_raise to NStep with T = T2. search. 
+% cast both sides 
+  NewType1 : case Type1. NewType2 : case Type2. NewContains : case Contains.
+  NStep : apply IH to NewType1 NewType3 NewContains Error LessPrecise. apply nstep_cast to NStep with T1 = T4, L = L1, T2 = T3. search. 
+% cast on left
+  NewType1 : apply Type1. NewType2 : case Type2. NewContains : apply Contains.
+  NStep : apply IH to NewType1 NewType2 NewContains Error LessPrecise. apply nstep_cast to NStep with T1 = T5, L = L2, T2 = T4. search.
+% cast on right
+  NewType1 : case Type1. NewType2 : apply Type2. NewContains : case Contains.
+  NStep : apply IH to NewType1 NewType3 NewContains Error LessPrecise. apply preservation_nstep to LessPrecise1 NStep. search.
+% blame
+  case Contains. 
+
+Theorem catch_up_to_exact_error_on_left : 
+	forall Err E T1 T2, 
+		{typeOfCC Err T1} -> {error Err} -> {typeOfCC E T2} -> {lessPrecise E Err} -> 
+			exists E', {nstep E E'} /\ {error E'} /\ {lessPrecise E' Err}. 
+induction on 4. intros Type1 Error Type2 LessPrecise. Value : case Error. LessPrecise : case LessPrecise. 
+% first case: raise
+   TypeV : case Type1(keep).
+   Type2 : case Type2. 
+   NStep : apply catch_up_to_value_on_left to TypeV Value Type2 LessPrecise.
+   NewNStep : apply nstep_raise to NStep with T = T2.
+   search. 
+% second case: cast
+   TypeV : case Type1(keep).
+   Type2 : case Type2. Error : assert {error (raise T1 V)}. 
+   NStep : apply IH to Type1 Error Type2 LessPrecise.
+   NewNStep : apply nstep_cast to NStep with T1 = T5, L = L2, T2 = T2.
+   case NStep1. 
+   case LessPrecise1(keep).
+   apply preservation_nstep to Type2 NStep. case H3 (keep). 
+   ErrorStep : assert {step (cast (raise T5 V1) T5 L2 T2) (raise T2 V1)}.
+   apply nstep_plus_one to NewNStep ErrorStep.
+   case NStep2(keep).
+   search. 
+
+
+
+     

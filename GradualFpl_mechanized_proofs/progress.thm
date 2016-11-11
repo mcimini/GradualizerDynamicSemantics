@@ -1,0 +1,316 @@
+Specification "gradual_fpl".
+
+Import "auxiliary".
+
+Define progresses_casts : term -> prop by
+	 progresses_casts E := {result E} ;
+	 progresses_casts E := exists E', {stepC E E'}.
+
+Theorem dyn_toGround : forall V L T, {typeOfCC V dyn} -> {value V} -> {ground T} -> progresses_casts (cast V dyn L T). 
+intros TypeOf Value Ground. case TypeOf.
+%unfold, appT, head, case, snd, fst, if, app, letrec, fix, try, raise, cast, blame. 
+case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. 
+% cast
+case Value. Middle : apply exludedMiddle to H4 Ground. case Middle. search. search. 
+%blame
+case Value. 
+
+Theorem progress_for_casts : forall V T1 T2 L T, {typeOfCC (cast V T1 L T2) T} -> {value V} -> {isType T1} -> {isType T2} -> progresses_casts (cast V T1 L T2).
+intros TypeOf Value IsType1 IsType2. 
+% not sure we need it.  Flow0 : case TypeOf (keep). 
+Partition : apply type_partitioning to IsType1. case Partition. 
+
+ % T1 = dyn  
+ Partition : apply type_partitioning to IsType2. case Partition. 
+  search. % T2 = dyn 
+  TypeOf : case TypeOf. apply dyn_toGround to TypeOf Value H1 with L = L. search. % ground T2
+  search. % getGround T2 and different T1 T2. 
+
+ % ground T1
+ Partition : apply type_partitioning to IsType2. case Partition. 
+  search. % % T2 = dyn 
+ Middle : apply exludedMiddle to H1 H2. case Middle. search. apply different_grounds_no_consistent to TypeOf H1 H2 H3. % ground T2
+ apply ground_consistent_type_makes_valueL to TypeOf Value H1 H2. search. % getGround T2 and different T1 T2. 
+ 
+ % getGround T1
+ Partition : apply type_partitioning to IsType2. case Partition. 
+ search. % T2 = dyn 
+ apply ground_consistent_type_makes_valueR to TypeOf Value H3 H1. search. % ground T2
+ apply consistent_and_ground_makes_value to TypeOf Value H1 H3 with L = L. search. % getGround T2 and different T1 T2. 
+ 
+
+Theorem  canonical_form_mu : forall E U1, {typeOfCC E (mu U1)} -> {value E} -> (exists Arg1 Arg2, E = (fold Arg1 Arg2) /\ {value Arg1}) \/ (exists V L T1 T1', E = (cast V (mu T1) L (mu T1')) /\ {value V}).
+intros Main Value. case Main.
+ case Value. search.
+ case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value.
+ case Value. case Value.
+% cast
+ case Value. search.
+%blame
+ case Value.
+
+Theorem  canonical_form_all : forall E U1, {typeOfCC E (all U1)} -> {value E} -> (exists Arg1, E = (absT Arg1)) \/ (exists V L T1 T1', E = (cast V (all T1) L (all T1')) /\ {value V}).
+intros Main Value. case Main.
+ case Value. search.
+ case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. 
+ case Value. case Value.
+% cast
+ case Value. search.
+%blame
+ case Value.
+
+ 
+Theorem  canonical_form_list : forall E T1, {typeOfCC E (list T1)} -> {value E} -> (exists Arg2 Arg3, E = (cons T1 Arg2 Arg3) /\ {value Arg2} /\ {value Arg3}) \/ (exists Arg1, E = (emptyList Arg1)) \/ (exists V L T1 T1', E = (cast V (list T1) L (list T1')) /\ {value V}).
+intros Main Value. case Main.
+ case Value. search.
+ case Value. search.
+ case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. 
+ case Value. case Value.
+% cast
+ case Value. search.
+%blame
+ case Value.
+
+Theorem  canonical_form_sum : forall E T1 T2, {typeOfCC E (sum T1 T2)} -> {value E} -> (exists T Arg1, E = (inr T Arg1) /\ {value Arg1}) \/ (exists T Arg1, E = (inl T Arg1) /\ {value Arg1}) \/ (exists V L T1 T1' T2 T2', E = (cast V (sum T1 T2) L (sum T1' T2')) /\ {value V}).
+intros Main Value. case Main.
+ case Value. search.
+ case Value. search.
+ case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. 
+ case Value. case Value.
+% cast
+ case Value. search.
+%blame
+ case Value.
+
+Theorem  canonical_form_times : forall E T1 T2, {typeOfCC E (times T1 T2)} -> {value E} -> (exists Arg1 Arg2, E = (pair Arg1 Arg2) /\ {value Arg1} /\ {value Arg2}) \/ (exists V L T1 T1' T2 T2', E = (cast V (times T1 T2) L (times T1' T2')) /\ {value V}).
+intros Main Value. case Main.
+ case Value. search.
+ case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. 
+ case Value. case Value.
+% cast
+ case Value. search.
+%blame
+ case Value.
+
+Theorem  canonical_form_bool : forall E, {typeOfCC E (bool )} -> {value E} -> E = (ff ) \/ E = (tt ).
+intros Main Value. case Main.
+ case Value. search.
+ case Value. search.
+ case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. 
+ case Value. case Value.
+% cast
+ case Value. 
+%blame
+ case Value.
+
+Theorem  canonical_form_int : forall E, {typeOfCC E (int )} -> {value E} -> (exists Arg1, E = (succ Arg1) /\ {value Arg1}) \/ E = (zero ).
+intros Main Value. case Main.
+ case Value. search.
+ case Value. search.
+ case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. 
+ case Value. case Value.
+% cast
+ case Value. 
+%blame
+ case Value.
+
+
+Theorem  canonical_form_arrow : forall E T1 T2, {typeOfCC E (arrow T1 T2)} -> {value E} -> (exists Arg1 Arg2, E = (abs Arg1 Arg2)) \/ (exists V L T1 T1' T2 T2', E = (cast V (arrow T1 T2) L (arrow T1' T2')) /\ {value V}).
+intros Main Value. case Main.
+ case Value. search.
+ case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. case Value. 
+ case Value. case Value.
+% cast
+ case Value. search.
+%blame
+ case Value.
+
+Theorem canonical_form_dyn : forall V, {typeOfCC V dyn} -> {value V} -> exists V' G L, (V = cast V' G L dyn) /\ {value V'} /\ {ground G}.
+intros. case H1. 
+case H2. case H2. case H2. case H2. case H2. case H2. case H2. case H2. case H2. case H2. case H2. case H2. case H2. 
+case H2. search. 
+case H2. 
+
+Define progresses : term -> prop by
+	 progresses E := {value E} ;
+	 progresses E := {error E} ;
+	 progresses E := exists E', {step E E'}.
+
+
+Theorem progress_fold : forall E1 U2 T, {typeOfCC ((fold E1 U2)) T} -> progresses E1 -> progresses ((fold E1 U2)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ search. case ProgressClause. search. search. 
+
+Theorem progress_unfold : forall E1 T, {typeOfCC ((unfold E1)) T} -> progresses E1 -> progresses ((unfold E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ Canonical : apply canonical_form_mu to TypeOfE1 ProgressClause. 
+   case Canonical. search. search. % new
+   case ProgressClause. search. search. 
+
+Theorem progress_absT : forall R1 T, {typeOfCC ((absT R1)) T} -> progresses ((absT R1)).
+ search.
+
+Theorem progress_appT : forall E1 T2 T, {typeOfCC ((appT E1 T2)) T} -> progresses E1 -> progresses ((appT E1 T2)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ Canonical : apply canonical_form_all to TypeOfE1 ProgressClause.  
+ case Canonical. search. search. % new
+ case ProgressClause. search. search.
+
+Theorem progress_cons : forall T1 E2 E3 T, {typeOfCC ((cons T1 E2 E3)) T} -> progresses E2 -> progresses E3 -> progresses ((cons T1 E2 E3)).
+intros Main PrgsE2 PrgsE3. TypeOfE1 : case Main. ProgressClause1 : case PrgsE2. ProgressClause2 : case PrgsE3.
+ search. case ProgressClause2. search. search. case ProgressClause1. search. search.
+
+Theorem progress_emptyList : forall T1 T, {typeOfCC ((emptyList T1)) T} -> progresses ((emptyList T1)).
+ search.
+
+Theorem progress_isnil : forall T1 E2 T, {typeOfCC ((isnil T1 E2)) T} -> progresses E2 -> progresses ((isnil T1 E2)).
+intros Main PrgsE2. TypeOfE1 : case Main. ProgressClause : case PrgsE2.
+ Canonical : apply canonical_form_list to TypeOfE1 ProgressClause. case Canonical. search. search. search. % one more search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_tail : forall T1 E2 T, {typeOfCC ((tail T1 E2)) T} -> progresses E2 -> progresses ((tail T1 E2)).
+intros Main PrgsE2. TypeOfE1 : case Main. ProgressClause : case PrgsE2.
+ Canonical : apply canonical_form_list to TypeOfE1 ProgressClause. case Canonical. search. search. search. % one more search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_head : forall T1 E2 T, {typeOfCC ((head T1 E2)) T} -> progresses E2 -> progresses ((head T1 E2)).
+intros Main PrgsE2. TypeOfE1 : case Main. ProgressClause : case PrgsE2.
+ Canonical : apply canonical_form_list to TypeOfE1 ProgressClause. case Canonical. search. search. search. % one more search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_inr : forall E1 T1 T2, {typeOfCC ((inr T1 E1)) T2} -> progresses E1 -> progresses ((inr T1 E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_inl : forall E1 T1 T2, {typeOfCC ((inl T1 E1)) T2} -> progresses E1 -> progresses ((inl T1 E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_case : forall E1 R2 R3 T, {typeOfCC ((case E1 R2 R3)) T} -> progresses E1 -> progresses ((case E1 R2 R3)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ Canonical : apply canonical_form_sum to TypeOfE1 ProgressClause. case Canonical. search. search. search. % one more search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_pair : forall E1 E2 T, {typeOfCC ((pair E1 E2)) T} -> progresses E1 -> progresses E2 -> progresses ((pair E1 E2)).
+intros Main PrgsE1 PrgsE2. TypeOfE1 : case Main. ProgressClause1 : case PrgsE1. ProgressClause2 : case PrgsE2.
+ search. case ProgressClause2. search. search. case ProgressClause1. search. search.
+
+Theorem progress_snd : forall E1 T, {typeOfCC ((snd E1)) T} -> progresses E1 -> progresses ((snd E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ Canonical : apply canonical_form_times to TypeOfE1 ProgressClause.  
+ case Canonical. search. search. % one more search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_fst : forall E1 T, {typeOfCC ((fst E1)) T} -> progresses E1 -> progresses ((fst E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ Canonical : apply canonical_form_times to TypeOfE1 ProgressClause. 
+ case Canonical. search. search. % new
+ case ProgressClause. search. search. 
+
+Theorem progress_ff : forall  T, {typeOfCC ((ff )) T} -> progresses ((ff )).
+ search.
+
+Theorem progress_tt : forall  T, {typeOfCC ((tt )) T} -> progresses ((tt )).
+ search.
+
+Theorem progress_if : forall E1 E2 E3 T, {typeOfCC ((if E1 E2 E3)) T} -> progresses E1 -> progresses ((if E1 E2 E3)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ Canonical : apply canonical_form_bool to TypeOfE1 ProgressClause. case Canonical. search. search. % not one more search because cast cannot happen.
+ case ProgressClause. search. search. 
+
+Theorem progress_succ : forall E1 T, {typeOfCC ((succ E1)) T} -> progresses E1 -> progresses ((succ E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_zero : forall  T, {typeOfCC ((zero )) T} -> progresses ((zero )).
+ search.
+
+Theorem progress_isZero : forall E1 T, {typeOfCC ((isZero E1)) T} -> progresses E1 -> progresses ((isZero E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ Canonical : apply canonical_form_int to TypeOfE1 ProgressClause. case Canonical. search. search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_pred : forall E1 T, {typeOfCC ((pred E1)) T} -> progresses E1 -> progresses ((pred E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ Canonical : apply canonical_form_int to TypeOfE1 ProgressClause. case Canonical. search. search. % not one more search because cast cannot happen.
+ case ProgressClause. search. search. 
+
+Theorem progress_abs : forall T1 R2 T, {typeOfCC ((abs T1 R2)) T} -> progresses ((abs T1 R2)).
+ search.
+
+Theorem progress_app : forall E1 E2 T, {typeOfCC ((app E1 E2)) T} -> progresses E1 -> progresses E2 -> progresses ((app E1 E2)).
+intros Main PrgsE1 PrgsE2. TypeOfE1 : case Main. ProgressClause1 : case PrgsE1. ProgressClause2 : case PrgsE2.
+ Canonical : apply canonical_form_arrow to TypeOfE1 ProgressClause1.  
+ case Canonical. search. search. % new
+ case ProgressClause2. search. search. case ProgressClause1. search. search.
+
+Theorem progress_let : forall E1 R T, {typeOfCC ((let E1 R)) T} -> progresses E1 -> progresses ((let E1 R)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_letrec : forall T1 R2 R3 T, {typeOfCC ((letrec T1 R2 R3)) T} -> progresses ((letrec T1 R2 R3)).
+ search.
+
+Theorem progress_fix : forall E1 T, {typeOfCC ((fix E1)) T} -> progresses E1 -> progresses ((fix E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_try : forall E1 E2 T, {typeOfCC ((try E1 E2)) T} -> progresses E1 -> progresses ((try E1 E2)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ search. case ProgressClause. search. search.
+
+Theorem progress_raise : forall E1 T T1, {typeOfCC ((raise T1 E1)) T} -> progresses E1 -> progresses ((raise T1 E1)).
+intros Main PrgsE1. TypeOfE1 : case Main. ProgressClause : case PrgsE1.
+ search. 
+ case ProgressClause. search. search. 
+
+Theorem progress_cast_operator : forall E1 L T1 T2 T, {typeOfCC (cast E1 T1 L T2) T} -> progresses E1 -> progresses (cast E1 T1 L T2).
+intros Main PrgsE1. TypeOfE1 : case Main (keep). ProgressClause : case PrgsE1.
+IsType1 : apply flow_implies_isType to TypeOfE2. 
+ProgressCast : apply progress_for_casts to Main ProgressClause IsType1 IsType2. 
+ProgressCastClause : case ProgressCast.
+case ProgressCastClause. search. search. case ProgressClause. search. search. 
+
+Theorem progress_blame : forall L T T1, {typeOfCC (blame T1 L) T} -> progresses (blame T1 L).
+intros Main PrgsE1. TypeOfE1 : case Main. 
+search. 
+
+Theorem progress : forall E T, {typeOfCC E T} -> progresses E. 
+induction on 1. intros Main. TypeOfE1 : case Main.
+apply IH to TypeOfE1. backchain progress_fold.
+  backchain progress_absT.
+ apply IH to TypeOfE1. apply IH to TypeOfE2. backchain progress_cons.
+  backchain progress_emptyList.
+ apply IH to TypeOfE1. backchain progress_inr.
+ apply IH to TypeOfE1. backchain progress_inl.
+ apply IH to TypeOfE1. apply IH to TypeOfE2. backchain progress_pair.
+  backchain progress_ff.
+  backchain progress_tt.
+ apply IH to TypeOfE1. backchain progress_succ.
+  backchain progress_zero.
+  backchain progress_abs.
+ apply IH to TypeOfE1. backchain progress_unfold.
+ apply IH to TypeOfE1. backchain progress_appT.
+ apply IH to TypeOfE1. backchain progress_isnil.
+ apply IH to TypeOfE1. backchain progress_tail.
+ apply IH to TypeOfE1. backchain progress_head.
+ apply IH to TypeOfE1. backchain progress_case.
+ apply IH to TypeOfE1. backchain progress_snd.
+ apply IH to TypeOfE1. backchain progress_fst.
+ apply IH to TypeOfE1. backchain progress_if.
+ apply IH to TypeOfE1. backchain progress_isZero.
+ apply IH to TypeOfE1. backchain progress_pred.
+ apply IH to TypeOfE1. apply IH to TypeOfE2. backchain progress_app.
+ apply IH to TypeOfE1. backchain progress_let.
+ backchain progress_letrec.
+ apply IH to TypeOfE1. backchain progress_fix.
+ apply IH to TypeOfE1. backchain progress_try.
+ apply IH to TypeOfE1. backchain progress_raise.
+ apply IH to TypeOfE1. backchain progress_cast_operator.
+ backchain progress_blame.
+

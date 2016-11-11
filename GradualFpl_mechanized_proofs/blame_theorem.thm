@@ -1,0 +1,496 @@
+Specification "gradual_fpl".
+
+Import "auxiliary".
+
+Define safeCast : label -> term -> prop by 
+	safeCast L (cast E T1 L T2) := {subtype T1 T2} ;
+	safeCast L1 (cast E T1 L2 T2) := L1 = L2 -> false.
+
+Define safe : label -> term -> prop by 
+	safe L tt ;
+	safe L ff ;
+	safe L zero ;
+	safe L (succ E) := safe L E ;
+	safe L (abs T R) := forall E, safe L E -> safe L (R E) ;
+	safe L (pair E1 E2) := safe L E1 /\  safe L E2 ;
+	safe L (inl T E) :=  safe L E ;
+	safe L (inr T E) :=  safe L E ;
+	safe L (emptyList T) ;
+	safe L (cons T E1 E2) := safe L E1 /\  safe L E2 ;
+	safe L (absT R) := forall T, safe L (R T) ;
+	safe L (fold E1 E2) := safe L E1 ;
+	safe L (app E1 E2) := safe L E1 /\  safe L E2 ; 
+	safe L (if E1 E2 E3) := safe L E1 /\  safe L E2 /\  safe L E3;
+	safe L (pred E1) := safe L E1 ;
+	safe L (isZero E1) := safe L E1 ;
+	safe L (fst E1) := safe L E1 ;
+	safe L (snd E1) := safe L E1 ;
+	safe L (case E1 E2 E3) := safe L E1 /\ (forall E, safe L E -> safe L (E2 E)) /\ (forall E, safe L E -> safe L (E3 E))  ;
+	safe L (head T E2) := safe L E2 ;
+	safe L (tail T E2) := safe L E2 ;
+	safe L (isnil T E2) := safe L E2 ;
+	safe L (appT E1 T) := safe L E1 ;
+	safe L (unfold E1) := safe L E1 ;
+	safe L (let E1 E2) := safe L E1 /\ (forall E, safe L E -> safe L (E2 E)) ;
+	safe L (fix E1) := safe L E1 ;
+	safe L (try E1 E2) := safe L E1 /\  safe L E2 ;
+	safe L (raise T E1) := safe L E1 ;
+	safe L (cast E T1 L T2) := {subtype T1 T2} /\ safe L E ;
+	safe L1 (cast E T1 L2 T2) := (L1 = L2 -> false) /\ safe L1 E ; 
+	safe L1 (blame T L2) := L1 = L2 -> false.
+
+
+Theorem safe_and_containError : forall E1 E2 L, safe L E1 -> {containsError E1 E2} -> safe L E2. 
+induction on 1.
+intros Safe Contains. 
+Safe1 : case Safe. 
+
+% tt, ff, zero
+case Contains. search. 
+case Contains. search. 
+case Contains. search. 
+% succ
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+% abs
+case Contains. search. % abs is not in the evaluation context and so contains does not search within it. 
+% pair
+NewContains : case Contains. 
+ search. 
+ apply IH to Safe1 NewContains. search.  
+ apply IH to Safe2 NewContains. search. 
+% inl, inr
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+% emptyList
+case Contains. search. 
+% cons
+NewContains : case Contains. 
+ search. 
+ apply IH to Safe1 NewContains. search.  
+ apply IH to Safe2 NewContains. search. 
+% absT
+case Contains. search. % absT is not in the evaluation context and so contains does not search within it. 
+% fold
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+% app
+NewContains : case Contains. 
+ search. 
+ apply IH to Safe1 NewContains. search.  
+ apply IH to Safe2 NewContains. search. 
+% if, pred, isZero, fst, snd, case, head, tail, isnil, appT, unfold, fix, try, raise, 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. %apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+% cast with subtyping.
+NewContains : case Contains. search. apply IH to Safe2 NewContains. search. 
+% cast different labels.
+NewContains : case Contains. search. apply IH to Safe2 NewContains. search. 
+% blame L4 contains blame L1.
+NewContains : case Contains. search. 
+
+Theorem safe_and_contain : forall E1 E2 L, safe L E1 -> {contains E1 E2} -> safe L E2. 
+induction on 1.
+intros Safe Contains. 
+Safe1 : case Safe. 
+
+% tt, ff, zero
+case Contains. search. 
+case Contains. search. 
+case Contains. search. 
+% succ
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+% abs
+case Contains. search. % abs is not in the evaluation context and so contains does not search within it. 
+% pair
+NewContains : case Contains. 
+ search. 
+ apply IH to Safe1 NewContains. search.  
+ apply IH to Safe2 NewContains. search. 
+% inl, inr
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+% emptyList
+case Contains. search. 
+% cons
+NewContains : case Contains. 
+ search. 
+ apply IH to Safe1 NewContains. search.  
+ apply IH to Safe2 NewContains. search. 
+% absT
+case Contains. search. % absT is not in the evaluation context and so contains does not search within it. 
+% fold
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+% app
+NewContains : case Contains. 
+ search. 
+ apply IH to Safe1 NewContains. search.  
+ apply IH to Safe2 NewContains. search. 
+% if, pred, isZero, fst, snd, case, head, tail, isnil, appT, unfold, fix, try, raise, 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+NewContains : case Contains. search. apply IH to Safe1 NewContains. search. 
+% cast with subtyping.
+NewContains : case Contains. search. apply IH to Safe2 NewContains. search. 
+% cast different labels.
+NewContains : case Contains. search. apply IH to Safe2 NewContains. search. 
+% blame L4 contains blame L1.
+NewContains : case Contains. search. 
+
+
+Theorem blame_theorem_cast_reductions : forall E E' L, safe L E -> {stepC E E'} -> safe L E'.
+induction on 1.
+intros Safe StepC. 
+Safe1 : case Safe.
+
+% tt, ff, zero, succ, abs, pair, inl, inr, emptyList, cons, fold, 
+case StepC. case StepC. case StepC. case StepC. case StepC. case StepC. case StepC. case StepC. case StepC. case StepC. case StepC. case StepC. 
+
+%app
+case StepC. 
+Subtype : case Safe1. case Subtype. search. 
+search.
+
+% if, pred, isZero,  
+% no transition discharged as false.
+case StepC. case StepC. case StepC. 
+
+% fst
+case StepC.
+Subtype : case Safe1. case Subtype. search. 
+search. 
+
+% snd
+case StepC.
+Subtype : case Safe1. case Subtype. search. 
+search. 
+
+% case
+case StepC.
+Subtype : case Safe1. case Subtype. 
+ assert forall E, safe L1 E -> safe L1 ((x\E2 (cast x T1' L1 T1)) E).
+    intros.
+    NestedSafe : assert safe L1 (cast E4 T1' L1 T1).
+    apply Safe2 to NestedSafe.
+    search.
+ assert forall E, safe L1 E -> safe L1 ((x\E3 (cast x T2' L1 T2)) E).
+    intros.
+    NestedSafe : assert safe L1 (cast E4 T2' L1 T2).
+    apply Safe3 to NestedSafe.
+    search.
+search.
+
+ assert forall E, safe L E -> safe L ((x\E2 (cast x T1' L1 T1)) E).
+     intros.
+     NestedSafe : assert safe L (cast E4 T1' L1 T1).
+     apply Safe2 to NestedSafe.
+     search. 
+ assert forall E, safe L E -> safe L ((x\E3 (cast x T2' L1 T2)) E).
+     intros.
+     NestedSafe : assert safe L (cast E4 T2' L1 T2).
+     apply Safe3 to NestedSafe.
+     search. 
+search. 
+
+
+% head
+case StepC.
+Subtype : case Safe1. case Subtype. search. 
+search. 
+
+% tail
+case StepC.
+Subtype : case Safe1. case Subtype. search. 
+search. 
+
+%isnil is missing.. you have to add it to the original and add it as eliminator. 
+case StepC.
+Subtype : case Safe1. case Subtype. search. 
+search. 
+
+% appT
+case StepC.
+Subtype : case Safe1. Input : case Subtype. 
+inst Input with n1 = T. search. 
+search. 
+
+% unfold
+case StepC.
+Subtype : case Safe1. Input1 : case Subtype (keep). 
+Input2 : inst Input1 with n1 = (mu R').
+Cut : inst Input2 with n2 = (mu R).
+cut Cut with Subtype.
+search. 
+search. 
+
+% let, fix, try, raise, no transition
+case StepC.
+case StepC.
+case StepC.
+case StepC.
+
+% cast and subtype: here you have the standard cast reductions. 
+case StepC.
+
+ % c-base
+ search.
+ % c-succeed
+ case Safe1. case H2. case H2. 
+ % c-fail - This case is not possible, and the proof code below discharges it with false assumptions. 	
+ case Safe1. case H3. case H3. 
+ % c-inject 
+ case Safe1. 
+   % A is subtype of dynamic because A = dyn, which has no ground. False assumptions. 
+   case H2.
+   % A is subtype of dynamic because A is subtype of a G.  
+   apply subtyping_ground_coincide to H4 H5 H2. 
+   apply subtyping_ground_reflexive to H5.
+   search. 
+ % c-project. Impossible case, False assumptions. 
+ case Safe1. case H2. case H2.
+
+% cast and different label. No escape.. we have to do case analysis on all the cast reduction from casts. 
+case StepC.
+ search.
+ case Safe2. search. search. 
+ search.
+ search.
+ search.
+% blame
+case StepC. 
+ 
+ 
+ 
+ 
+Theorem blame_theorem : forall E E' L, safe L E -> {step E E'} -> safe L E'.
+induction on 1.
+intros. 
+Safe1 : case H1. 
+
+% tt, ff, zero
+case H2. case H4. case H3. case H4. 
+case H2. case H4. case H3. case H4. 
+case H2. case H4. case H3. case H4. 
+
+% succ 
+Step : case H2. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (succ E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% abs
+Step : case H2. 
+  case Step1.
+  NewSafe : assert safe L (abs T R). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  case Step1.
+% pair
+Step : case H2. 
+  apply IH to Safe1 Step. search.
+  apply IH to Safe2 Step. search.
+  NewStep : case Step1. 
+      ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+	  ToDestroy : apply safe_and_containError to Safe2 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (pair E1 E2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. 
+      ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+	  ToDestroy : apply safe_and_contain to Safe2 NewStep. case ToDestroy. search.
+% inl
+Step : case H2. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (inl T E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% inr
+Step : case H2. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (inr T E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% emptyList
+case H2. case H4. case H3. case H4. 
+% cons
+Step : case H2. 
+  apply IH to Safe1 Step. search.
+  apply IH to Safe2 Step. search.
+  NewStep : case Step1. 
+      ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+	  ToDestroy : apply safe_and_containError to Safe2 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (cons T E1 E2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. 
+      ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+	  ToDestroy : apply safe_and_contain to Safe2 NewStep. case ToDestroy. search.
+% absT
+Step : case H2. 
+  case Step1.
+  NewSafe : assert safe L (absT R). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  case Step1. 
+% fold
+Step : case H2. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (fold E1 E2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% app
+Step : case H2. 
+  case Safe1. apply H3 to Safe2. search. 
+  apply IH to Safe1 Step. search.
+  apply IH to Safe2 Step. search.
+  NewStep : case Step1. 
+      ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+	  ToDestroy : apply safe_and_containError to Safe2 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (app E1 E2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. 
+      ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+	  ToDestroy : apply safe_and_contain to Safe2 NewStep. case ToDestroy. search.
+% if
+Step : case H2. 
+  search. search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (if E1 E2 E3). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% pred
+Step : case H2. 
+  search. 
+  case Safe1. search.
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (pred E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% isZero
+Step : case H2. 
+  search. search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (isZero E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% fst
+Step : case H2. 
+  case Safe1. search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (fst E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% snd
+Step : case H2. 
+  case Safe1. search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (snd E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% case
+Step : case H2. 
+  case Safe1. apply Safe2 to H3. search. 
+  case Safe1. apply Safe3 to H3. search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (case E1 E2 E3). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% head
+Step : case H2. 
+  search. 
+  case Safe1. search.  
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (head T E2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% tail
+Step : case H2. 
+  search. 
+  case Safe1. search.  
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (tail T E2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% isnil
+Step : case H2. 
+  search. 
+  search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (isnil T E2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% appT
+Step : case H2. 
+  case Safe1. apply H3 with T = T. search.
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (appT E1 T). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% unfold
+Step : case H2. 
+  case Safe1. search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (unfold E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% let
+Step : case H2. 
+  apply Safe2 to Safe1. search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (let E1 E2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% fix
+Step : case H2. 
+  search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (fix E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% try
+Step : case H2. 
+  search. 
+  case Safe1. search. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. %ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (try E1 E2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% raise
+Step : case H2. 
+  apply IH to Safe1 Step. search.
+  NewStep : case Step1. case Step. search. ToDestroy : apply safe_and_containError to Safe1 NewStep. case ToDestroy. search.
+  NewSafe : assert safe L (raise T E1). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe1 NewStep. case ToDestroy. search.
+% cast with subtyping
+Step : case H2. 
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe2 NewStep. case ToDestroy. search.
+  apply IH to Safe2 Step. search.
+  NewSafe : assert safe L (cast E1 T1 L T2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe2 NewStep. case ToDestroy. search.
+% cast different labels
+Step : case H2. 
+  NewStep : case Step1. ToDestroy : apply safe_and_containError to Safe2 NewStep. case ToDestroy. search.
+  apply IH to Safe2 Step. search.
+  NewSafe : assert safe L (cast E1 T1 L2 T2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  NewStep : case Step1. ToDestroy : apply safe_and_contain to Safe2 NewStep. case ToDestroy. search.
+% blame
+Step : case H2. 
+  case Step1.
+  NewSafe : assert safe L (blame T L2). apply blame_theorem_cast_reductions to NewSafe Step. search. 
+  case Step1. search. 
+
+
