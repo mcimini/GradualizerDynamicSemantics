@@ -7,7 +7,6 @@ Quick usage: <br />
 <li> make 
  <br />    (* Important: you need the <a href="http://abella-prover.org">Abella proofs assistant</a> installed and "abella" must be in the $PATH *)  
 </ul>
- <br />
 Output: <br />
 <ul>
 <li> Abella machine-checks all theorems and ends with:
@@ -22,7 +21,6 @@ Abella < Goodbye.
 <li> The command returns to the prompt. 
 <br />(* Important: It may take 2-3 minutes *)  
 </ul>
-<br />
 To clean: <br />
 <ul>
 <li> make clean 
