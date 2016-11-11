@@ -13,8 +13,10 @@ Output: <br />
 <li> Abella machine-checks all theorems and ends with:
 <br />
 simulation_of_more_precise < search.
+<br />
 Proof completed.
-
+<br />
+<br />
 Abella < Goodbye.
 
 <li> The command returns to the prompt. 
