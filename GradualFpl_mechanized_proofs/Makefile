@@ -14,6 +14,5 @@ default:
 clean:
 	rm *.thc
 
-
 display_admitted:
 	grep skip *
