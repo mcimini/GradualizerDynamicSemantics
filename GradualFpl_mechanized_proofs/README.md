@@ -1,4 +1,4 @@
-## A Gradualizer for the Dynamic Semantics of Gradually Typed Languages
+## A mechanized proof that a rich gradually typed language is correct. 
 
 Author: Matteo Cimini (mcimini@indiana.edu)
 
