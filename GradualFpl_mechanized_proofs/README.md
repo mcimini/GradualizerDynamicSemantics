@@ -1,4 +1,5 @@
-# A Gradualizer for the Dynamic Semantics of Gradually Typed Languages
+# A Gradualizer for the Dynamic Semantics of <br />
+# Gradually Typed Languages
 
 Author: Matteo Cimini (mcimini@indiana.edu)
 
