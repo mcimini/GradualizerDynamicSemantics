@@ -329,7 +329,7 @@ stepC (cast (cast V G1 L1 (dyn)) (dyn) L2 G2) (blame G2 L2) :- value V, ground G
 stepC (cast V T L (dyn)) (cast (cast V T L G) G L (dyn)) :- value V, getGroundOf T G, not (ground T).
 stepC (cast V (dyn) L T) (cast (cast V (dyn) L G) G L T) :- value V, getGroundOf T G, not (ground T).
 stepC E (blame T1 L) :- typeOfCC E T1, contains E (blame T2 L), not (E is (blame T2 L)).
-stepC E (raise T1 V) :- typeOfCC E T1, containsError E (raise T2 V), value V.
+step E (raise T1 V) :- typeOfCC E T1, containsError E (raise T2 V), value V.
 stepC (app (cast V (arrow T1' T2') L (arrow T1 T2)) V2) (cast (app V (cast V2 T1 L T1')) T2' L T2) :- value V, value V2.
 stepC (fst (cast V (times T1' T2') L (times T1 T2))) (cast (fst V) T1' L T1) :- value V.
 stepC (snd (cast V (times T1' T2') L (times T1 T2))) (cast (snd V) T2' L T2) :- value V.
