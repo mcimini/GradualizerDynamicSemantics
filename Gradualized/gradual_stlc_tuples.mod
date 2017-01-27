@@ -95,7 +95,7 @@ stepC (cast (cast V G1 L1 (dyn)) (dyn) L2 G2) (blame G2 L2) :- value V, ground G
 stepC (cast V T L (dyn)) (cast (cast V T L G) G L (dyn)) :- value V, getGroundOf T G, not (ground T).
 stepC (cast V (dyn) L T) (cast (cast V (dyn) L G) G L T) :- value V, getGroundOf T G, not (ground T).
 stepC E (blame T1 L) :- typeOfCC E T1, contains E (blame T2 L), not (E is (blame T2 L)).
-stepC (app (cast V (arrow T1' T2') L (arrow T1 T2)) E2) (cast (app V (cast E2 T1 L T1')) T2' L T2) :- value V, value E2.
+stepC (app (cast V (arrow T1' T2') L (arrow T1 T2)) V2) (cast (app V (cast V2 T1 L T1')) T2' L T2) :- value V, value V2.
 stepC (select1 (cast V (tupleType T1' T2' T3' T4') L (tupleType T1 T2 T3 T4))) (cast (select1 V) T1' L T1) :- value V.
 stepC (select2 (cast V (tupleType T1' T2' T3' T4') L (tupleType T1 T2 T3 T4))) (cast (select2 V) T2' L T2) :- value V.
 stepC (select3 (cast V (tupleType T1' T2' T3' T4') L (tupleType T1 T2 T3 T4))) (cast (select3 V) T3' L T3) :- value V.

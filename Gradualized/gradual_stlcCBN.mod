@@ -37,17 +37,17 @@ typeOfCC (app E1 E2) T2 :- typeOfCC E1 (arrow T1 T2), typeOfCC E2 T1.
 typeOfCC (zero) (int).
 typeOfCC (cast E T1 L T2) T2 :- typeOfCC E T1, consistency T1 T2.
 typeOfCC (blame T L) T.
+getGroundOf (arrow X1 X2) (arrow (dyn) (dyn)).
+getGroundOf (int) (int).
+sameGround T1 T2 :- getGroundOf T1 X, getGroundOf T2 X.
 contains (cast E1 T1 L T2) E :- contains E1 E.
 containsError (cast E1 T1 L T2) E :- containsError E1 E.
+step (cast E T1 L T2) (cast E' T1 L T2) :- step E E'.
 stepC (cast V T L T) V :- value V.
 stepC (cast (cast V G L1 (dyn)) (dyn) L2 G) V :- value V, ground G.
 stepC (cast (cast V G1 L1 (dyn)) (dyn) L2 G2) (blame G2 L2) :- value V, ground G1, ground G2, not (sameGround G1 G2).
 stepC (cast V T L (dyn)) (cast (cast V T L G) G L (dyn)) :- value V, getGroundOf T G, not (ground T).
 stepC (cast V (dyn) L T) (cast (cast V (dyn) L G) G L T) :- value V, getGroundOf T G, not (ground T).
-getGroundOf (arrow X1 X2) (arrow (dyn) (dyn)).
-getGroundOf (int) (int).
-sameGround T1 T2 :- getGroundOf T1 X, getGroundOf T2 X.
+stepC E (blame T1 L) :- typeOfCC E T1, contains E (blame T2 L), not (E is (blame T2 L)).
 stepC (app (cast V (arrow T1' T2') L (arrow T1 T2)) E2) (cast (app V (cast E2 T1 L T1')) T2' L T2) :- value V.
-step (cast E T1 L T2) (cast E' T1 L T2) :- step E E'.
 step E E' :- stepC E E'.
-step E (blame T1 L) :- typeOfCC E T1, contains E (blame T2 L), not (E is (blame T2 L)).
