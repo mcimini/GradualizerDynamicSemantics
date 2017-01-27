@@ -107,9 +107,9 @@ listOfTerms sig = let onlyterms = (\x -> case x of (Decl c typ info entries) -> 
 
 onlyEliminatorsOfHigher :: TypeSystem -> Signature
 onlyEliminatorsOfHigher ts@(Ts sig rules) = 
-	let typeHigher c n = case extractEliminatedType (searchRuleByPredAndName ts typeOf c) n of (Constructor c terms) -> length terms > 0
+	let typeHigher op n = case extractEliminatedType (searchRuleByPredAndName ts typeOf op) n of (Constructor c terms) -> length terms > 0
     in 
-	 let mysearch = (\x -> case x of { (Decl c typ (Right n) entries) -> n > 0 && typeHigher c n ; otherwise -> False }) in 
+	 let mysearch = (\x -> case x of { (Decl op typ (Right n) entries) -> n > 0 && typeHigher op n ; otherwise -> False }) in 
       filter mysearch sig 
 
 searchDeclByName :: Signature -> String -> Maybe SignatureEntry
@@ -244,7 +244,14 @@ doesItAppear_trm c1 (Application term1 term2) = any (doesItAppear_trm c1) [term1
 doesItAppear_trm c1 (Lambda bound term) = any (doesItAppear_trm c1) [term]
 doesItAppear_trm c1 otherwise = False
 
+{-
+extractContexts :: Signature -> [(String, (Int, [Int]), Int)]
+extractContexts [] = []
+extractContexts ((Decl c2 typ info entries):rest) = case contexts of {Nothing -> extractContexts rest ; Just positions -> (map (\p -> (c, p, (length entries))) positions) ++  extractContexts rest}
+-}
+
 mapi f l = zipWith f l [0..]
+replaceAtIndex n newVal [] = []
 replaceAtIndex n newVal (x:xs)
      | n == 0 = newVal:xs
      | otherwise = x:replaceAtIndex (n-1) newVal xs

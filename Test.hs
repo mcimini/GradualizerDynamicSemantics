@@ -10,7 +10,9 @@ import           GenerateCalculi
 import           FromLambdaProlog
 import           ToLambdaProlog
 import           Library
---import           ToLatex
+
+-- Here we use Library just for retrieve the names of languages. 
+-- Language definitions are read from files. 
 
 test :: IO ()
 test = do
@@ -51,6 +53,15 @@ parseAndShow name = do
                let moduleL = lines streamMod
                let (ts, _) = parseLP (signature ++ moduleL)
                putStrLn (toLambdaPrologModule ts)
+
+myShow :: String -> String
+myShow s = read $ "\"" ++ s ++ "\""
+
+parseAndShowString :: String -> IO String 
+parseAndShowString name = do 
+               streamSig <- readFile ("Repo of Static Type Systems/" ++ name ++ ".sig") 
+               streamMod <- readFile ("Repo of Static Type Systems/" ++ name ++ ".mod")
+               return (myShow streamSig ++ "-------------" ++ show streamMod)
 			   
 
 parseAndSpitTS :: String -> IO TypeSystem

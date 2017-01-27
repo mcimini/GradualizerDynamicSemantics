@@ -1,6 +1,7 @@
 module CastManagement where
 
 import System.IO.Unsafe 
+import Data.Maybe
 import Data.Unique
 import Data.List
 import Data.String.Utils
@@ -9,10 +10,16 @@ import DestinationType
 import CastInsertion
 import CastTemplate as CastTemplate
 
+convertedStepRulesToTypeOfCC :: [Rule] -> [Rule]
+convertedStepRulesToTypeOfCC rules = [ fromJust rule | rule <- map convertedStepRulesToTypeOfCC_rule rules, isJust rule]
+	where 
+		convertedStepRulesToTypeOfCC_rule rule = let newrule = renamingInRule typeOf typeOfCC rule in if newrule == rule then Nothing else Just (renamingInRule stepOriginal step newrule)
+--turnTypeOftoTypeOfCC (Ts sig rules) = (renamingInRule typeOf typeOfCC)
+
 addCastManagement :: TypeSystem -> TypeSystem -> TypeSystem
 addCastManagement ts@(Ts sig rules) tsToAugment = 
 	let augmented = (extend tsToAugment (CastTemplate.getTemplate ts)) in 
-	 augmented `addRules` (map (castForOperators ts augmented) (onlyEliminatorsOfHigher ts) ++ (stepUpTostepCRule sig))
+	 augmented `addRules` (convertedStepRulesToTypeOfCC rules ++ (map (castForOperators ts augmented) (onlyEliminatorsOfHigher ts) ++ (stepUpTostepCRule sig)))
 --renameToStepTickedIFNECESSARY
 
 -- Only deconstructors of higher order types ()
@@ -37,14 +44,28 @@ castForOperators tsOrigin (Ts sig rules) (Decl c typ info entries) =
 			 in let flowsReversed = flowExtraction sourceCast targetCast -- Notice we flip source/target w.r.t. earlier.
 			 in let pkgConclusion = (makePkg sig (Rule flowsReversed conclusion)) 
 			 in let targetAssignedType = (destinationType pkgConclusion newAssignedType)
-			 in let finalTargetOfReduction = makeCastTerm castValueLiberated newAssignedType targetAssignedType
+			 in let finalTargetOfReductionPre = makeCastTerm castValueLiberated newAssignedType targetAssignedType
 			 -- we add the cast eliminated argument later because cast insertion handles only variables.
-			 in let valuePremises = valuehoodInsertion tsOrigin injectedTheCastValue
-			 in 
+			 in let valuePremisesPre = valuehoodInsertion tsOrigin injectedTheCastValue
+			 in let valuePremises = map turnToVtheValues valuePremisesPre
+			 in let finalTargetOfReduction = if valuePremises == [] then finalTargetOfReductionPre else replaceWithValues finalTargetOfReductionPre
+			 in let injectedTheCastValueMM = if valuePremises == [] then injectedTheCastValue else replaceWithValues injectedTheCastValue
+			 in
 			 (Rule 
 			 	([(Formula "value" [] [(Var "V")] [])] ++ valuePremises)
-				(Formula step [] [injectedTheCastValue] [finalTargetOfReduction])
+				(Formula step [] [injectedTheCastValueMM] [finalTargetOfReduction])
 			 )	
+
+turnToVtheValues (Formula pred strings interms outterms) = (Formula pred strings newin newout)
+ where
+    newin = if interms == [] then [] else case (head interms) of Var (c:rest) -> [Var ('V' : rest)] --(replaceAtIndex 1 (replaceWithV (head interms)) interms ++ (tail interms))
+    newout = if outterms == [] then [] else  ( Var "BLA2 " : (tail outterms)) --(replaceAtIndex 1 (replaceWithV (head outterms)) outterms ++ (tail outterms)) 
+
+
+replaceWithValues (Var (c:rest)) = if c == 'E' then Var ('V' : rest) else (Var (c:rest))
+replaceWithValues (Constructor c terms) = (Constructor c (map replaceWithValues terms)) 
+replaceWithValues (Application term1 term2) = (Application (replaceWithValues term1) (replaceWithValues term2)) 
+replaceWithValues (Bound x) = (Bound x) 
 
 castTypesInEnvironment :: Term -> Premise -> Premise
 castTypesInEnvironment canonical premise = case premise of 

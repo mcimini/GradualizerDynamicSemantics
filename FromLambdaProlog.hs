@@ -68,7 +68,8 @@ variable = Var `fmap` identifier
 -}
 
 -- (map (adjustByContra contraEntries) sig) is the adjusted sig.
-tsParse :: Parser (TypeSystem, [Rule])
+-- (returns also a pair (contexts, errorHandler))
+tsParse :: Parser (TypeSystem, ([(String, [(Int, [Int])])] , [String]))
 tsParse = do { sig <- many signature
 	     		; rules <- many ruleGram
                 ; contexts <- many contextTags
@@ -77,7 +78,7 @@ tsParse = do { sig <- many signature
                 ; contraEntries <- many contravarTags
              ; let newsig = sig_insertElimininators elimEntries (sig_insertVariance contraEntries sig)  
 --	     ; return $ (Ts newsig (rules ++ (completeRules (Ts newsig rules) contexts))) }
-	     ; return $ (Ts newsig rules, (completeRules (Ts newsig rules) contexts errorHandler)) }
+	     ; return $ (Ts newsig rules, (contexts, errorHandler)) }
         
 contextTags :: Parser (String, [(Int, [Int])])
 contextTags = do {
@@ -230,7 +231,7 @@ allOf p = do
   eof
   return r
 
-parseLP :: [String] -> (TypeSystem, [Rule])
+parseLP :: [String] -> (TypeSystem, ([(String, [(Int, [Int])])] , [String]))
 parseLP t = let stuffToParse = unlines (filter (not . parseGarbage) t) in 
   case parse (allOf tsParse) "stdin" stuffToParse of
     Left err -> error (show err)
@@ -275,8 +276,8 @@ sig_insertElimininators [] sig = sig
 sig_insertElimininators (entry:rest) sig = 
  case entry of (c, n) -> case (searchDeclByName sig c) of { Nothing -> error ("ERROR: sig_insertElimininators. not found: " ++ (show sig) ++ c) ; Just (Decl c1 typ info entries) -> (Decl c1 typ (Right n) entries):(sig_insertElimininators rest (deleteDeclByName sig c)) }
 
-completeRules :: TypeSystem -> [(String, [(Int, [Int])])] -> [String] -> [Rule]
-completeRules (Ts sig rules) contexts errorHandlers = (map fstOf3 tripleOfRulesContextAndContainsAndError) 
+completeRules :: TypeSystem -> ([(String, [(Int, [Int])])] , [String]) -> [Rule]
+completeRules (Ts sig rules) (contexts, errorHandlers) = (map fstOf3 tripleOfRulesContextAndContainsAndError) 
     ++ [Rule [] (Formula "contains" [] [Var "E", Var "E"] [])] ++ (map sndOf3 tripleOfRulesContextAndContainsAndError) 
     ++ if errorHandlers == [] then [] else [Rule [] (Formula "containsError" [] [Var "E", Var "E"] [])] ++ getRidOfNone (map thirdOf3 tripleOfRulesContextAndContainsAndError) 
 	
