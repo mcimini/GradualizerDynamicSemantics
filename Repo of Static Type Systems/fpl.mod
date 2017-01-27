@@ -1,148 +1,148 @@
 module fpl.
 
-typeOf (fold E R) (mu R) :- typeOf E (R (mu R)).
+typeOf (zero ) (int ).
 
-typeOf (absT R2) (all R) :- (pi x\ typeOf (R2 x) (R x)).
+typeOf (succ E) (int ) :- typeOf E (int ).
 
-typeOf (cons T E1 E2) (list T) :- typeOf E1 T, typeOf E2 (list T).
+typeOf (pred E) (int ) :- typeOf E (int ).
 
-typeOf (emptyList T) (list T).
-
-typeOf (inr T1 E) (sum T1 T2) :- typeOf E T2.
-
-typeOf (inl T2 E) (sum T1 T2) :- typeOf E T1.
-
-typeOf (pair E1 E2) (times T1 T2) :- typeOf E1 T1, typeOf E2 T2.
+typeOf (isZero E) (bool ) :- typeOf E (int ).
 
 typeOf (ff ) (bool ).
 
 typeOf (tt ) (bool ).
 
-typeOf (succ E) (int ) :- typeOf E (int ).
-
-typeOf (zero ) (int ).
+typeOf (if E1 E2 E3) T :- typeOf E1 (bool ), typeOf E2 T, typeOf E3 T.
 
 typeOf (abs T1 R) (arrow T1 T2) :- (pi x\ typeOf x T1 => typeOf (R x) T2).
 
-typeOf (unfold E) (R (mu R)) :- typeOf E (mu R).
+typeOf (app E1 E2) T2 :- typeOf E1 (arrow T1 T2), typeOf E2 T1.
 
-step (unfold (fold V R)) V :- value V.
+typeOf (emptyList T) (list T).
 
-typeOf (appT E T) (R T) :- typeOf E (all R).
-
-step (appT (absT R2) T) (R2 T).
+typeOf (cons T E1 E2) (list T) :- typeOf E1 T, typeOf E2 (list T).
 
 typeOf (isnil T E) (bool ) :- typeOf E (list T).
 
-step (isnil T (emptyList T')) (tt ).
-
-step (isnil T (cons T V1 V2)) (ff) :- value V1, value V2.
-
 typeOf (tail T E) (list T) :- typeOf E (list T).
-
-step (tail T (emptyList T')) (raise (list T) (succ (zero ))).
-
-step (tail T (cons T V1 V2)) V2 :- value V1, value V2.
 
 typeOf (head T E) T :- typeOf E (list T).
 
-step (head T (emptyList T')) (raise T (zero )).
+typeOf (inr T1 E) (sum T1 T2) :- typeOf E T2.
 
-step (head T (cons T V1 V2)) V1 :- value V1, value V2.
+typeOf (inl T2 E) (sum T1 T2) :- typeOf E T1.
 
 typeOf (case EE R1 R2) T :- typeOf EE (sum T1 T2), (pi x\ typeOf x T1 => typeOf (R1 x) T), (pi x\ typeOf x T2 => typeOf (R2 x) T).
 
-step (case (inl T V) E1 E2) (E1 V) :- value V.
-
-step (case (inr T V) E1 E2) (E2 V) :- value V.
-
-typeOf (snd E) T2 :- typeOf E (times T1 T2).
-
-step (snd (pair V1 V2)) V2 :- value V1, value V2.
+typeOf (pair E1 E2) (times T1 T2) :- typeOf E1 T1, typeOf E2 T2.
 
 typeOf (fst E) T1 :- typeOf E (times T1 T2).
 
-step (fst (pair V1 V2)) V1 :- value V1, value V2.
+typeOf (snd E) T2 :- typeOf E (times T1 T2).
 
-typeOf (if E1 E2 E3) T :- typeOf E1 (bool ), typeOf E2 T, typeOf E3 T.
+typeOf (absT R2) (all R) :- (pi x\ typeOf (R2 x) (R x)).
 
-step (if (tt ) E1 E2) E1.
+typeOf (appT E T) (R T) :- typeOf E (all R).
 
-step (if (ff ) E1 E2) E2.
+typeOf (unfold E) (R (mu R)) :- typeOf E (mu R).
 
-typeOf (isZero E) (bool ) :- typeOf E (int ).
+typeOf (fold E R) (mu R) :- typeOf E (R (mu R)).
 
-step (isZero (zero )) (tt ).
+typeOf (fix E) T :- typeOf E (arrow T T).
 
-step (isZero (succ V)) (ff ) :- value V.
+typeOf (let E R) T2 :- typeOf E T1, (pi x\ typeOf x T1 => typeOf (R x) T2).
 
-typeOf (pred E) (int ) :- typeOf E (int ).
+typeOf (letrec T1 R1 R2) T2 :- (pi x\ typeOf x T1 => typeOf (R1 x) T1), (pi x\ typeOf x T1 => typeOf (R2 x) T2).
+
+typeOf (try E1 E2) T :- typeOf E1 T, typeOf E2 (arrow (int ) T).
+
+typeOf (raise T E) T :- typeOf E (int ).
+
+step (app (abs T R) V) (R V) :- value V.
 
 step (pred (zero )) (raise (int) (zero )).
 
 step (pred (succ V)) V :- value V.
 
-typeOf (app E1 E2) T2 :- typeOf E1 (arrow T1 T2), typeOf E2 T1.
+step (isZero (zero )) (tt ).
 
-step (app (abs T R) V) (R V) :- value V.
+step (isZero (succ V)) (ff ) :- value V.
 
-typeOf (let E R) T2 :- typeOf E T1, (pi x\ typeOf x T1 => typeOf (R x) T2).
+step (if (tt ) E1 E2) E1.
+
+step (if (ff ) E1 E2) E2.
+
+step (case (inl T V) E1 E2) (E1 V) :- value V.
+
+step (case (inr T V) E1 E2) (E2 V) :- value V.
+
+step (snd (pair V1 V2)) V2 :- value V1, value V2.
+
+step (fst (pair V1 V2)) V1 :- value V1, value V2.
+
+step (isnil T (emptyList T')) (tt ).
+
+step (isnil T (cons T V1 V2)) (ff) :- value V1, value V2.
+
+step (tail T (emptyList T')) (raise (list T) (succ (zero ))).
+
+step (tail T (cons T V1 V2)) V2 :- value V1, value V2.
+
+step (head T (emptyList T')) (raise T (zero )).
+
+step (head T (cons T V1 V2)) V1 :- value V1, value V2.
+
+step (appT (absT R2) T) (R2 T).
+
+step (unfold (fold V R)) V :- value V.
 
 step (let V R) (R V) :- value V.
 
-typeOf (letrec T1 R1 R2) T2 :- (pi x\ typeOf x T1 => typeOf (R1 x) T1), (pi x\ typeOf x T1 => typeOf (R2 x) T2).
-
 step (letrec T1 R1 R2) (R2 (fix (abs T1 R1))).
-
-typeOf (fix E) T :- typeOf E (arrow T T).
 
 step (fix V) (app V (fix V)) :- value V.
 
-typeOf (try E1 E2) T :- typeOf E1 T, typeOf E2 (arrow (int ) T).
-
 step (try E1 E2) E1 :- value E1.
 
-step (try (raise T V) E)  (app E V) :- value V.
+step (try (raise T V1) V2)  (app V2 V1) :- value V1, value V2.
 
-value (fold E1 U2) :- value E1.
+value (zero ).
 
-value (absT R1).
+value (succ E1) :- value E1.
 
-value (cons T1 E2 E3) :- value E2, value E3.
+value (tt ).
 
-value (emptyList T1).
+value (ff ).
+
+value (abs T1 R2).
 
 value (inr T V) :- value V.
 
 value (inl T E1) :- value E1.
 
+value (emptyList T1).
+
+value (cons T1 E2 E3) :- value E2, value E3.
+
 value (pair E1 E2) :- value E1, value E2.
 
-value (ff ).
+value (absT R1).
 
-value (tt ).
-
-value (succ E1) :- value E1.
-
-value (zero ).
-
-value (abs T1 R2).
+value (fold E1 U2) :- value E1.
 
 error (raise T V) :- value V. 
 
-typeOf (raise T E) T :- typeOf E (int ).
-
-step E (raise T1 V) :- typeOfCC E T1, containsError E (raise T2 V), value V. 
+step E (raise T1 V) :- typeOf E T1, containsError E (raise T2 V), value V. 
 
 multistep E E.
 
 multistep E1 E3 :- step E1 E2, multistep E2 E3.
 
-% context app 1[], 2[1].
-% context if 1[].
 % context succ 1[].
 % context pred 1[].
 % context isZero 1[].
+% context app 1[], 2[1].
+% context if 1[].
 % context pair 1[], 2[1].
 % context fst 1[].
 % context snd 1[].
