@@ -13,7 +13,7 @@ import CastTemplate as CastTemplate
 convertedStepRulesToTypeOfCC :: [Rule] -> [Rule]
 convertedStepRulesToTypeOfCC rules = [ fromJust rule | rule <- map convertedStepRulesToTypeOfCC_rule rules, isJust rule]
 	where 
-		convertedStepRulesToTypeOfCC_rule rule = let newrule = renamingInRule typeOf typeOfCC rule in if newrule == rule then Nothing else Just (renamingInRule stepOriginal step newrule)
+		convertedStepRulesToTypeOfCC_rule rule = let newrule = renamingInRule typeOf typeOfCC rule in if newrule == rule then Nothing else Just newrule -- (renamingInRule stepOriginal step newrule)
 --turnTypeOftoTypeOfCC (Ts sig rules) = (renamingInRule typeOf typeOfCC)
 
 addCastManagement :: TypeSystem -> TypeSystem -> TypeSystem
